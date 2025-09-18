@@ -31,7 +31,7 @@
         color: #111;
         overflow: hidden;
         /* Wallpaper: swap for Bliss if desired */
-        background: url("r6g38aXSaQWtd1KxwJbQ-Fs5jtSVDxX3wtLHJEdqixw.jpg")
+        background: url("r6g38aXSaQWtd1KxwJbQ-Fs5jtSVDxX3wtLHJEdqixw.jpg.webp")
           no-repeat center center fixed;
         background-size: cover;
       }
@@ -88,12 +88,12 @@
 
       /* Taskbar */
       .taskbar {
-        position: relative;                    /* needed for highlight bands */
-        height: 40px;                          /* or your 60px if you upscaled it */
-        background: var(--xp-task);            /* solid base */
-        border-top: 1px solid #377fe3;         /* subtle outer edge */
-        box-shadow: inset 0 1px 0 var(--xp-task-top), /* inner light band at very top */
-              inset 0 -1px 0 #143c9b;          /* inner dark band at bottom */
+        position: relative; /* needed for highlight bands */
+        height: 40px; /* or your 60px if you upscaled it */
+        background: var(--xp-task); /* solid base */
+        border-top: 1px solid #377fe3; /* subtle outer edge */
+        box-shadow: inset 0 1px 0 var(--xp-task-top),
+          /* inner light band at very top */ inset 0 -1px 0 #143c9b; /* inner dark band at bottom */
         display: flex;
         align-items: center;
         gap: 8px;
@@ -105,21 +105,31 @@
       .taskbar::before,
       .taskbar::after {
         content: "";
-        position: absolute; left: 0; right: 0; height: 2px; pointer-events: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        pointer-events: none;
       }
-      .taskbar::before { top: 0;    background: var(--xp-task-top); } /* top thin light */
-      .taskbar::after  { bottom: 0; background: #143c9b; }            /* bottom thin dark */
+      .taskbar::before {
+        top: 0;
+        background: var(--xp-task-top);
+      } /* top thin light */
+      .taskbar::after {
+        bottom: 0;
+        background: #143c9b;
+      } /* bottom thin dark */
       .start {
-        position: relative;                 /* for highlight/gloss layers */
+        position: relative; /* for highlight/gloss layers */
         display: inline-flex;
         align-items: center;
         gap: 8px;
 
         /* XP size: smaller than taskbar with breathing room */
-        height: 40px;                       /* taskbar is 40px in your file */
+        height: 40px; /* taskbar is 40px in your file */
         padding: 0 20px 0 20px;
         margin: 0 5px 0 5px;
-        margin-left: 0px;                    /* top/bottom space so it floats inside the bar */
+        margin-left: 0px; /* top/bottom space so it floats inside the bar */
         margin-right: 2px;
 
         /* XP pill: big curve on the left, small on the right */
@@ -129,26 +139,33 @@
         font-weight: 700;
         font-size: 20px;
         font-style: italic;
-        text-transform: lowercase;          /* "start" */
-        letter-spacing: .2px;
-        text-shadow: 0 1px 0 rgba(0,0,0,.45);
+        text-transform: lowercase; /* "start" */
+        letter-spacing: 0.2px;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 
         /* XP green bevel: light → base */
         background: linear-gradient(#46db48, var(--xp-green));
         border: 1px solid var(--xp-green-dark);
 
         /* thin non‑blended bands for XP look */
-        box-shadow:
-          inset 0 1px 0 #7af477,            /* 1px top inner highlight */
-          inset 0 -1px 0 #0d5d0b,           /* 1px bottom inner shadow */
-          0 2px 2px rgba(0,0,0,.35);        /* outer drop */
+        box-shadow: inset 0 1px 0 #7af477,
+          /* 1px top inner highlight */ inset 0 -1px 0 #0d5d0b,
+          /* 1px bottom inner shadow */ 0 2px 2px rgba(0, 0, 0, 0.35); /* outer drop */
       }
-      .start.win-logo { width: 20px; height: 20px; image-rendering: pixelated; object-fit: contain; }
+      .start.win-logo {
+        width: 20px;
+        height: 20px;
+        image-rendering: pixelated;
+        object-fit: contain;
+      }
 
       /* 2px hard highlight strip at the very top (XP cap) */
       .start::before {
         content: "";
-        position: absolute; left: 0px; right: 0px; top: 2px;
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        top: 2px;
         height: 2px;
         right: 11px;
         background: #bdf7bb;
@@ -156,13 +173,20 @@
         pointer-events: none;
       }
 
-/* subtle glossy dome on the top half */
+      /* subtle glossy dome on the top half */
       .start::after {
         content: "";
-        position: absolute; left: 8px; right: 8px; top: 3px;
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        top: 3px;
         height: 56%;
         left: 0px;
-        background: linear-gradient(to bottom, rgba(255,255,255,.45), rgba(255,255,255,.08));
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.45),
+          rgba(255, 255, 255, 0.08)
+        );
         border-radius: 0px 20px 20px 0px;
         pointer-events: none;
       }
@@ -170,18 +194,14 @@
       /* Hover & pressed (keep your current feel but tuned for the new size) */
       .start:hover {
         background: linear-gradient(#5fe65f, #23b31e);
-        box-shadow:
-          inset 0 1px 0 #a2f9a1,
-          inset 0 -1px 0 #0e6610,
-          0 2px 3px rgba(0,0,0,.35);
+        box-shadow: inset 0 1px 0 #a2f9a1, inset 0 -1px 0 #0e6610,
+          0 2px 3px rgba(0, 0, 0, 0.35);
       }
 
       .start:active {
         background: linear-gradient(var(--xp-green), #46db48); /* flip bevel */
-        box-shadow:
-          inset 0 1px 0 #0e6610,
-          inset 0 -1px 0 #a2f9a1,
-          0 1px 1px rgba(0,0,0,.35);
+        box-shadow: inset 0 1px 0 #0e6610, inset 0 -1px 0 #a2f9a1,
+          0 1px 1px rgba(0, 0, 0, 0.35);
         transform: translateY(1px);
       }
       .win-logo {
@@ -205,7 +225,7 @@
         width: 30px;
         padding: 2px;
         border: none;
-        background: transparent;    /* no white boxes */
+        background: transparent; /* no white boxes */
         border-radius: 4px;
         cursor: pointer;
         transition: all 160ms ease; /* smooth expand */
@@ -217,10 +237,10 @@
         image-rendering: pixelated;
       }
       .ql .ql-label {
-        display: none;              /* hidden until open */
+        display: none; /* hidden until open */
         font-size: 12px;
         color: #fff;
-        text-shadow: 0 1px 0 rgba(0,0,0,.45);
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
         white-space: nowrap;
       }
       .ql.open {
@@ -228,27 +248,24 @@
         min-width: 120px;
         background: linear-gradient(#2c64c6, #1f4db0); /* XP task blue */
         border: 1px solid #123b7c;
-        box-shadow:
-          inset 0 1px 0 #5f9df9,      /* top highlight band */
-          inset 0 -1px 0 #1d3d8c,     /* bottom band */
-          0 0 10px rgba(66,130,255,.55); /* outer glow */
+        box-shadow: inset 0 1px 0 #5f9df9,
+          /* top highlight band */ inset 0 -1px 0 #1d3d8c,
+          /* bottom band */ 0 0 10px rgba(66, 130, 255, 0.55); /* outer glow */
       }
-      .ql.open .ql-label { display: inline; }
+      .ql.open .ql-label {
+        display: inline;
+      }
 
       /* Focused/active window: brighter glow */
       .ql.open.active {
-        box-shadow:
-          inset 0 1px 0 #8dbffd,
-          inset 0 -1px 0 #18387f,
-          0 0 14px rgba(100,160,255,.85);
+        box-shadow: inset 0 1px 0 #8dbffd, inset 0 -1px 0 #18387f,
+          0 0 14px rgba(100, 160, 255, 0.85);
       }
 
       /* Optional: dim when window is minimized/inactive */
       .ql.open.inactive {
-        filter: saturate(.8) brightness(.95);
-        box-shadow:
-          inset 0 1px 0 #5f9df9,
-          inset 0 -1px 0 #1d3d8c;
+        filter: saturate(0.8) brightness(0.95);
+        box-shadow: inset 0 1px 0 #5f9df9, inset 0 -1px 0 #1d3d8c;
       }
 
       .ql:hover {
@@ -324,10 +341,10 @@
         justify-content: space-between;
         padding: 0 4px 0 8px;
         cursor: move;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
       }
 
-/* 2px highlight at top and 2px shadow at bottom */
+      /* 2px highlight at top and 2px shadow at bottom */
       .titlebar::before,
       .titlebar::after {
         content: "";
@@ -374,37 +391,41 @@
         place-items: center;
         border: 1px solid #5c76bf; /* XP-style deep blue border */
         border-radius: 3px;
-        background: linear-gradient(#5f86eb, #7a96df); /* top highlight blue → base */
+        background: linear-gradient(
+          #5f86eb,
+          #7a96df
+        ); /* top highlight blue → base */
         cursor: pointer;
-        box-shadow:
-          inset 0 1px 0 #ffffff,  /* top inner highlight */
-          inset 0 -1px 0 #5673c1; /* bottom inner shadow */
+        box-shadow: inset 0 1px 0 #ffffff,
+          /* top inner highlight */ inset 0 -1px 0 #5673c1; /* bottom inner shadow */
       }
       .ctl:hover {
         background: linear-gradient(#a4c6f4, #88a9e8); /* brighter on hover */
       }
 
       .ctl:active {
-        background: linear-gradient(#7a96df, var(--xp-blue1)); /* reverse bevel on press */
-        box-shadow:
-          inset 0 1px 0 #5673c1,
-          inset 0 -1px 0 #ffffff;
+        background: linear-gradient(
+          #7a96df,
+          var(--xp-blue1)
+        ); /* reverse bevel on press */
+        box-shadow: inset 0 1px 0 #5673c1, inset 0 -1px 0 #ffffff;
       }
       .ctl.close {
         background: linear-gradient(#ff7878, #db2f2f);
         border-color: #7a0a0a;
       }
       .ctl.close:hover {
-        background: linear-gradient(#ff9999, #e64545); /* lighter red gradient */
+        background: linear-gradient(
+          #ff9999,
+          #e64545
+        ); /* lighter red gradient */
         border-color: #a00000;
       }
 
       /* Active = pressed state (bevel reversed) */
       .ctl.close:active {
         background: linear-gradient(#db2f2f, #ff7878); /* reverse bevel */
-        box-shadow:
-          inset 0 1px 0 #a00000,
-          inset 0 -1px 0 #ffbdbd;
+        box-shadow: inset 0 1px 0 #a00000, inset 0 -1px 0 #ffbdbd;
       }
       .ctl svg {
         width: 12px;
@@ -501,21 +522,24 @@
   <body>
     <!-- XP Boot Screen -->
     <div id="boot" class="boot-screen">
-      <img src="Windows XP.ico" alt="Logo" style="height: 200px; width: auto; margin-bottom: 24px;" />
+      <img
+        src="Windows XP.ico"
+        alt="Logo"
+        style="height: 200px; width: auto; margin-bottom: 24px"
+      />
       <div class="boot-bar"><div class="boot-fill"></div></div>
       <div class="boot-sub">Compiling Internships...</div>
     </div>
     <div class="desktop hidden" id="desktop">
-    <div class="desktop" id="desktop">
-      <!-- Desktop icons (ordered top-to-bottom as requested: bin, notes/explorer, about) -->
+      <!-- Desktop icons (ordered top-to-bottom as requested: bin, Explorer/explorer, about) -->
       <div class="icons" id="iconGrid" aria-label="Desktop">
         <div class="desktop-icon" tabindex="0" data-app="bin">
           <img src="bin.ico" alt="Recycle Bin" />
           <div class="icon-label">Recycle Bin</div>
         </div>
 
-        <div class="desktop-icon" tabindex="0" data-app="notes">
-          <img src="explorer.ico" alt="Notes Icon" />
+        <div class="desktop-icon" tabindex="0" data-app="explorer">
+          <img src="explorer.ico" alt="Explorer Icon" />
           <div class="icon-label">Explorer</div>
         </div>
 
@@ -538,13 +562,13 @@
             <img src="bin.ico" alt="Bin" />
             <span class="ql-label">Recycle Bin</span>
           </div>
-        
-          <!-- Notes -->
-          <div class="ql" title="Notes" data-app="notes">
-            <img src="explorer.ico" alt="Notes" />
-            <span class="ql-label">Notes</span>
+
+          <!-- Explorer -->
+          <div class="ql" title="Explorer" data-app="explorer">
+            <img src="explorer.ico" alt="Explorer" />
+            <span class="ql-label">Explorer</span>
           </div>
-        
+
           <!-- About Me -->
           <div class="ql" title="About Me" data-app="about">
             <img src="My_Computer.ico" alt="About" />
@@ -597,10 +621,10 @@
         <div class="content">
           <h2>Hey, My name is Sean Wang!</h2>
           <p>
-            <strong>Welcome to my resume!</strong> I'm a third year student at the University of Sydney, 
-            currently studying Bachelor of Science and Doctor of Dental Medicine. I major in Financial
-            Maths and Statistics and Minor in Anatomy and Histology. Some of my skills include:
-
+            <strong>Welcome to my resume!</strong> I'm a third year student at
+            the University of Sydney, currently studying Bachelor of Science and
+            Doctor of Dental Medicine. I major in Financial Maths and Statistics
+            and Minor in Anatomy and Histology. Some of my skills include:
           </p>
           <ul>
             <li>Statistical Modelling and Machine Learning</li>
@@ -609,12 +633,14 @@
             <li>Financial Markets</li>
           </ul>
           <p>
-            Click on the different applications to navigate around. Any questions, feel free to shoot me 
-            a message :-)
+            Click on the different applications to navigate around. Any
+            questions, feel free to shoot me a message :-)
           </p>
           <p>
-            Say hi! ~ 
-            <a href="#" onclick="alert('seanwang.sydney@gmail.com');return false;"
+            Say hi! ~
+            <a
+              href="#"
+              onclick="alert('seanwang.sydney@gmail.com');return false;"
               >seanwang.sydney@gmail.com</a
             >
           </p>
@@ -630,16 +656,17 @@
       const tpl = document.getElementById("windowTemplate");
       const clock = document.getElementById("clock");
 
-      document.querySelectorAll('.ql').forEach(btn => {
-          btn.addEventListener('click', () => {
+      document.querySelectorAll(".ql").forEach((btn) => {
+        btn.addEventListener("click", () => {
           const app = btn.dataset.app;
-          if (app === 'about') openAboutWindow();
-          else if (app === 'bin') alert('Recycle Bin is empty.');
+          if (app === "about") openAboutWindow();
+          else if (app === "explorer") openExplorerWindow();
+          else if (app === "bin") alert("Recycle Bin is empty.");
           else alert(`${app} app coming soon`);
         });
       });
 
-      const quickLaunch = document.getElementById('quickLaunch');
+      const quickLaunch = document.getElementById("quickLaunch");
 
       function qlFor(app) {
         return quickLaunch.querySelector(`.ql[data-app="${app}"]`);
@@ -651,69 +678,78 @@
         // move to rightmost position
         quickLaunch.appendChild(el);
         // expand
-        el.classList.add('open', 'active');
+        el.classList.add("open", "active");
         // collapse others
-        quickLaunch.querySelectorAll('.ql.open').forEach(q => {
-          if (q !== el) q.classList.remove('active');
+        quickLaunch.querySelectorAll(".ql.open").forEach((q) => {
+          if (q !== el) q.classList.remove("active");
         });
       }
 
       function deactivateQuickLaunch(app) {
         const el = qlFor(app);
         if (!el) return;
-        el.classList.remove('open', 'active', 'inactive');
+        el.classList.remove("open", "active", "inactive");
       }
 
       function markQuickLaunchInactive(app) {
         const el = qlFor(app);
         if (!el) return;
-        el.classList.add('inactive');
-        el.classList.remove('active');
+        el.classList.add("inactive");
+        el.classList.remove("active");
       }
       function focusWindow(win) {
-        document.querySelectorAll('.window').forEach(w => w.classList.add('inactive'));
-        win.classList.remove('inactive');
+        document
+          .querySelectorAll(".window")
+          .forEach((w) => w.classList.add("inactive"));
+        win.classList.remove("inactive");
         win.style.zIndex = ++zCounter;
-        document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-        if (win._taskBtn) win._taskBtn.classList.add('active');
+        document
+          .querySelectorAll(".task")
+          .forEach((t) => t.classList.remove("active"));
+        if (win._taskBtn) win._taskBtn.classList.add("active");
 
         // glow the corresponding quick launch
         const app = win.dataset.app;
-        quickLaunch.querySelectorAll('.ql.open').forEach(q => q.classList.remove('active'));
-        if (app) { const el = qlFor(app); if (el) el.classList.add('active'); }
+        quickLaunch
+          .querySelectorAll(".ql.open")
+          .forEach((q) => q.classList.remove("active"));
+        if (app) {
+          const el = qlFor(app);
+          if (el) el.classList.add("active");
+        }
       }
-      function minimizeWindow(win){
-        win.classList.add('hidden');
-        if (win._taskBtn) win._taskBtn.classList.add('active');
+      function minimizeWindow(win) {
+        win.classList.add("hidden");
+        if (win._taskBtn) win._taskBtn.classList.add("active");
         const app = win.dataset.app;
         if (app) markQuickLaunchInactive(app);
       }
-      function closeWindow(win){
+      function closeWindow(win) {
         if (win._taskBtn) win._taskBtn.remove();
         const app = win.dataset.app;
         if (app) deactivateQuickLaunch(app);
         win.remove();
       }
-      quickLaunch.addEventListener('click', (e) => {
-        const btn = e.target.closest('.ql');
+      quickLaunch.addEventListener("click", (e) => {
+        const btn = e.target.closest(".ql");
         if (!btn) return;
         const app = btn.dataset.app;
         let win = document.querySelector(`.window[data-app="${app}"]`);
 
         if (!win) {
-          if (app === 'about') win = openAboutWindow();
-          else if (app === 'notes') return alert('Notes is coming soon.');
-          else if (app === 'bin') return alert('Recycle Bin is empty.');
+          if (app === "about") win = openAboutWindow();
+          else if (app === "explorer") win = openExplorerWindow(); // <-- fixed
+          else if (app === "bin") return alert("Recycle Bin is empty.");
         }
 
-        if (win.classList.contains('hidden')) {
-          win.classList.remove('hidden');
-          btn.classList.remove('inactive');
-          btn.classList.add('active');
-          focusWindow(win);
-        } else {
-          focusWindow(win); // just bring to front
+        if (!win) return; // safety
+
+        if (win.classList.contains("hidden")) {
+          win.classList.remove("hidden");
+          btn.classList.remove("inactive");
+          btn.classList.add("active");
         }
+        focusWindow(win);
       });
 
       // Simple clock
@@ -759,45 +795,132 @@
         makeWindowDraggable(win, win.querySelector("[data-drag-handle]"));
 
         desktop.appendChild(win);
-        activateQuickLaunch('about'); // keep your quick‑launch expansion
+        activateQuickLaunch("about"); // keep your quick‑launch expansion
         //remove any previously created task button if it exists
-        if (win._taskBtn) { win._taskBtn.remove(); win._taskBtn = null; }
+        if (win._taskBtn) {
+          win._taskBtn.remove();
+          win._taskBtn = null;
+        }
         focusWindow(win);
         return win;
       }
 
-      function focusWindow(win){
-        document.querySelectorAll('.window').forEach(w => w.classList.add('inactive'));
-        win.classList.remove('inactive');
+      function openExplorerWindow() {
+        // Don’t open duplicates
+        let win = document.querySelector('.window[data-app="explorer"]');
+        if (win) {
+          if (win.classList.contains("hidden")) win.classList.remove("hidden");
+          focusWindow(win);
+          return win;
+        }
+
+        win = document.createElement("div");
+        win.className = "window";
+        win.dataset.app = "explorer"; // <-- use lowercase to match quick-launch/data-app
+        Object.assign(win.style, {
+          left: "160px",
+          top: "160px",
+          width: "640px",
+          height: "460px",
+        });
+
+        win.innerHTML = `
+        <div class="titlebar" data-drag-handle>
+          <div class="title-left">
+            <img class="mini-icon" src="explorer.ico" alt="Explorer">
+            <span class="title-text">Explorer</span>
+          </div>
+          <div class="title-controls">
+            <button class="ctl" data-min title="Minimize" aria-label="Minimize">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M6 19h12v-2H6z"/>
+              </svg>
+            </button>
+            <button class="ctl" data-max title="Maximize" aria-label="Maximize">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M6 6h12v12H6z"/>
+              </svg>
+            </button>
+            <button class="ctl close" data-close title="Close" aria-label="Close">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M18.3 5.71L12 12.01l-6.3-6.3L4.29 7.1l6.3 6.3l-6.3 6.3l1.41 1.41l6.3-6.29l6.3 6.3l1.41-1.41l-6.29-6.3l6.3-6.29z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="content" style="padding:0; display:flex; flex-direction:column; min-height:0;">
+          <iframe
+            src="https://en.wikipedia.org/wiki/Main_Page"
+            style="width:100%; height:100%; flex:1; border:none;"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+        <div class="status">Ready</div>
+      `;
+        desktop.appendChild(win);
+        makeWindowDraggable(win, win.querySelector("[data-drag-handle]"));
+
+        win
+          .querySelector("[data-close]")
+          .addEventListener("click", () => closeWindow(win));
+        win
+          .querySelector("[data-min]")
+          .addEventListener("click", () => minimizeWindow(win));
+        win
+          .querySelector("[data-max]")
+          .addEventListener("click", () => toggleMaximize(win));
+
+        focusWindow(win);
+        activateQuickLaunch("explorer");
+      }
+
+      function focusWindow(win) {
+        document
+          .querySelectorAll(".window")
+          .forEach((w) => w.classList.add("inactive"));
+        win.classList.remove("inactive");
         win.style.zIndex = ++zCounter;
-        document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-        if (win._taskBtn) win._taskBtn.classList.add('active');
+        document
+          .querySelectorAll(".task")
+          .forEach((t) => t.classList.remove("active"));
+        if (win._taskBtn) win._taskBtn.classList.add("active");
 
         // reflect focus in Quick‑Launch
         const app = win.dataset.app;
         if (app) {
-          document.querySelectorAll('#quickLaunch .ql.open').forEach(q => q.classList.remove('active'));
-          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
-          if (el) el.classList.add('open','active'); // ensure it’s the active one
-          }
-      }
-
-      function minimizeWindow(win){
-        win.classList.add('hidden');
-        if (win._taskBtn) win._taskBtn.classList.add('active');
-        const app = win.dataset.app;
-        if (app) {
-          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
-          if (el) { el.classList.add('inactive'); el.classList.remove('active'); }
+          document
+            .querySelectorAll("#quickLaunch .ql.open")
+            .forEach((q) => q.classList.remove("active"));
+          const el = document.querySelector(
+            `#quickLaunch .ql[data-app="${app}"]`
+          );
+          if (el) el.classList.add("open", "active"); // ensure it’s the active one
         }
       }
 
-      function closeWindow(win){
+      function minimizeWindow(win) {
+        win.classList.add("hidden");
+        if (win._taskBtn) win._taskBtn.classList.add("active");
+        const app = win.dataset.app;
+        if (app) {
+          const el = document.querySelector(
+            `#quickLaunch .ql[data-app="${app}"]`
+          );
+          if (el) {
+            el.classList.add("inactive");
+            el.classList.remove("active");
+          }
+        }
+      }
+
+      function closeWindow(win) {
         if (win._taskBtn) win._taskBtn.remove();
         const app = win.dataset.app;
         if (app) {
-          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
-          if (el) el.classList.remove('open','active','inactive'); // ← collapse back to icon
+          const el = document.querySelector(
+            `#quickLaunch .ql[data-app="${app}"]`
+          );
+          if (el) el.classList.remove("open", "active", "inactive"); // ← collapse back to icon
         }
         win.remove();
       }
@@ -894,7 +1017,6 @@
 
         handle.addEventListener("mousedown", down);
         win.addEventListener("mousedown", () => focusWindow(win));
-        activateQuickLaunch('about');
       }
 
       /* ===================== ICONS: vertical order + drag & snap ===================== */
@@ -902,7 +1024,7 @@
         ICON_H = 96,
         ICON_GAP = 8,
         ICON_MARGIN = 12;
-      const ICON_ORDER = ["bin", "notes", "about"]; // top-to-bottom
+      const ICON_ORDER = ["bin", "explorer", "about"]; // top-to-bottom
 
       function setIconPosition(el, left, top) {
         el.style.left = left + "px";
@@ -997,6 +1119,7 @@
         if (!icon) return;
         const app = icon.dataset.app;
         if (app === "about") openAboutWindow();
+        else if (app === "explorer") openExplorerWindow();
         else if (app === "bin") alert("Recycle Bin is empty.");
         else alert("This app is coming soon.");
       });
