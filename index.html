@@ -942,16 +942,6 @@
             note.style.zIndex = ++zTop;
           });
 
-          // save content on input
-          body.addEventListener('input', () => {
-            const rect = note.getBoundingClientRect();
-            localStorage.setItem('sticky:' + id, JSON.stringify({
-              left: parseInt(note.style.left) || rect.left,
-              top:  parseInt(note.style.top)  || rect.top,
-              content: body.innerText
-            }));
-          });
-
           // make draggable via header only
           const handle = note.querySelector('.sticky-header');
           let dragging = false, sx=0, sy=0, sl=0, st=0;
