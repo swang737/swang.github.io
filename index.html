@@ -31,7 +31,7 @@
         color: #111;
         overflow: hidden;
         /* Wallpaper: swap for Bliss if desired */
-        background: url("r6g38aXSaQWtd1KxwJbQ-Fs5jtSVDxX3wtLHJEdqixw.jpg")
+        background: url("r6g38aXSaQWtd1KxwJbQ-Fs5jtSVDxX3wtLHJEdqixw.jpg.webp")
           no-repeat center center fixed;
         background-size: cover;
       }
@@ -503,7 +503,7 @@
     <div id="boot" class="boot-screen">
       <img src="Windows XP.ico" alt="Logo" style="height: 200px; width: auto; margin-bottom: 24px;" />
       <div class="boot-bar"><div class="boot-fill"></div></div>
-      <div class="boot-sub">Gathering Projects...</div>
+      <div class="boot-sub">Compiling Internships...</div>
     </div>
     <div class="desktop hidden" id="desktop">
     <div class="desktop" id="desktop">
@@ -520,8 +520,8 @@
         </div>
 
         <div class="desktop-icon" tabindex="0" data-app="about">
-          <img src="My_Computer.ico" alt="About Us" />
-          <div class="icon-label">About Us</div>
+          <img src="My_Computer.ico" alt="About Me" />
+          <div class="icon-label">About Me</div>
         </div>
       </div>
 
@@ -545,8 +545,8 @@
             <span class="ql-label">Notes</span>
           </div>
         
-          <!-- About Us -->
-          <div class="ql" title="About Us" data-app="about">
+          <!-- About Me -->
+          <div class="ql" title="About Me" data-app="about">
             <img src="My_Computer.ico" alt="About" />
             <span class="ql-label">About Me</span>
           </div>
@@ -571,7 +571,7 @@
             <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#e6f0ff" d="M12 2a10 10 0 100 20a10 10 0 000-20" />
             </svg>
-            <span class="title-text">About Us</span>
+            <span class="title-text">About Me</span>
           </div>
           <div class="title-controls">
             <button class="ctl" data-min title="Minimize" aria-label="Minimize">
@@ -698,9 +698,22 @@
         const btn = e.target.closest('.ql');
         if (!btn) return;
         const app = btn.dataset.app;
-        if (app === 'about') openAboutWindow();
-        else if (app === 'notes') alert('Notes is coming soon.');
-        else if (app === 'bin') alert('Recycle Bin is empty.');
+        let win = document.querySelector(`.window[data-app="${app}"]`);
+
+        if (!win) {
+          if (app === 'about') win = openAboutWindow();
+          else if (app === 'notes') return alert('Notes is coming soon.');
+          else if (app === 'bin') return alert('Recycle Bin is empty.');
+        }
+
+        if (win.classList.contains('hidden')) {
+          win.classList.remove('hidden');
+          btn.classList.remove('inactive');
+          btn.classList.add('active');
+          focusWindow(win);
+        } else {
+          focusWindow(win); // just bring to front
+        }
       });
 
       // Simple clock
@@ -725,7 +738,7 @@
         }
         const win = tpl.content.firstElementChild.cloneNode(true);
         win.dataset.app = "about";
-        win.dataset.title = "About Us";
+        win.dataset.title = "About Me";
         const vw = window.innerWidth,
           vh = window.innerHeight;
         const x = Math.max(8, Math.min(vw - 420, 90 + Math.random() * 120));
