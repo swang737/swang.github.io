@@ -673,7 +673,7 @@
             <img src="My_Computer.ico" alt="About" />
             <span class="ql-label">About Me</span>
           </div>
-        </div>
+          </div>
 
         <!-- Projects -->
           <div class="ql" title="Projects" data-app="projects">
@@ -798,6 +798,7 @@
           const app = btn.dataset.app;
           if (app === "about") openAboutWindow();
           else if (app === "explorer") openExplorerWindow();
+          else if (app === "projects") openProjectsWindow()
           else if (app === "bin") alert("Recycle Bin is empty.");
           else alert(`${app} app coming soon`);
         });
@@ -1089,7 +1090,6 @@
         if (kind === "html") return "file-html.ico";
         if (kind === "pdf")  return "file-pdf.ico";
         return "file.ico";
-        return win;
       }
 
       function openProjectsWindow() {
