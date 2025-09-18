@@ -982,6 +982,60 @@
         });
       })();
 
+      // === Randomize sticky positions on load ===
+      (function randomizeStickies(){
+        const desktop = document.getElementById('desktop');
+        const taskbar  = document.getElementById('taskbar'); // if you have one
+        const notes = Array.from(document.querySelectorAll('.sticky'));
+
+        // run after layout so sizes are known
+        requestAnimationFrame(() => {
+          const pad = 16; // breathing room from edges
+          const tbH = taskbar ? taskbar.offsetHeight : 40; // taskbar height
+          const deskW = desktop.clientWidth;
+          const deskH = desktop.clientHeight;
+
+          notes.forEach((note, i) => {
+            // measure note (fall back to typical size if not rendered yet)
+            const w = note.offsetWidth  || 320;
+            const h = note.offsetHeight || 180;
+
+            const maxX = Math.max(pad, deskW - w - pad);
+            const maxY = Math.max(pad, deskH - h - tbH - pad);
+
+            // spread them a bit: random + small stagger by index
+            const randX = Math.floor(Math.random() * maxX);
+            const randY = Math.floor(Math.random() * maxY);
+            const x = Math.min(maxX, Math.max(pad, randX + i * 24));
+            const y = Math.min(maxY, Math.max(pad, randY + i * 24));
+
+            note.style.left = x + 'px';
+            note.style.top  = y + 'px';
+          });
+        });
+      })();
+
+      // Optional: call this to re‑roll a single note’s position later
+      function respawnNote(id){
+        const desktop = document.getElementById('desktop');
+        const taskbar  = document.getElementById('taskbar');
+        const note = document.querySelector(`.sticky[data-note-id="${id}"]`);
+        if (!note) return;
+
+        const pad = 16;
+        const tbH = taskbar ? taskbar.offsetHeight : 40;
+        const deskW = desktop.clientWidth;
+        const deskH = desktop.clientHeight;
+        const w = note.offsetWidth  || 320;
+        const h = note.offsetHeight || 180;
+
+        const maxX = Math.max(pad, deskW - w - pad);
+        const maxY = Math.max(pad, deskH - h - pad - tbH);
+
+        note.style.left = Math.floor(Math.random() * maxX) + 'px';
+        note.style.top  = Math.floor(Math.random() * maxY) + 'px';
+      }
+
       function openAboutWindow() {
         let existing = document.querySelector('.window[data-app="about"]');
         if (existing) {
