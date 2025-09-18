@@ -670,7 +670,7 @@
       </div>
 
       <!-- Taskbar -->
-      <div class="taskbar" role="toolbar" aria-label="Taskbar">
+      <div class="taskbar" id="taskbar" role="toolbar" aria-label="Taskbar">
         <button class="start" id="startBtn" title="Start">
           <img src="Windows XP.ico" alt="Windows Logo" class="win-logo" />
           Start
@@ -909,54 +909,59 @@
       setInterval(updateClock, 30000);
 
       // === Sticky Notes: drag, focus, and localStorage persistence ===
+      // Stickies: init + drag + keep below windows
       (function initStickyNotes(){
-        const zBase = 2000; // keep above icons but below windows unless focused
-        let zTop = zBase;
-
         const notes = document.querySelectorAll('.sticky');
-        notes.forEach(note => {
 
-          // focus to top on mousedown
+        // one counter for all stickies; they live under windows
+        let stickyZ = Z.STICKY_BASE; // e.g., 200
+
+        notes.forEach(note => {
+          // start behind windows
+          note.style.zIndex = Z.STICKY_BASE;
+
+          // focus style (purely visual)
           note.addEventListener('mousedown', () => {
             notes.forEach(n => n.classList.remove('active'));
             note.classList.add('active');
-            note.style.zIndex = Z.STICKY_BASE;
           });
 
-          // make draggable via header only
+          // drag only from the header
           const handle = note.querySelector('.sticky-header');
           let dragging = false, sx=0, sy=0, sl=0, st=0;
 
-          const down = (e) => {
+          function down(e){
             if (e.button !== 0) return;
+
+            // bump within sticky band (keeps below windows)
+            stickyZ = Math.min(stickyZ + 1, Z.STICKY_TOP); // e.g., 399
+            note.style.zIndex = stickyZ;
+
             dragging = true;
             const r = note.getBoundingClientRect();
             sx = e.clientX; sy = e.clientY;
             sl = r.left;    st = r.top;
             document.addEventListener('mousemove', move);
             document.addEventListener('mouseup', up);
-          };
-          const move = (e) => {
-            if (!dragging) return;
-            const nx = sl + (e.clientX - sx);
-            const ny = st + (e.clientY - sy);
-            note.style.left = nx + 'px';
-            note.style.top  = ny + 'px';
-          };
-          const up = () => {
-            if (!dragging) return;
-            dragging = false;
-            document.removeEventListener('mousemove', move);
-            document.removeEventListener('mouseup', up);
-            // persist final position
-            const id = note.dataset.noteId;
-          };
-          let stickyZ = Z.STICKY_BASE;
-          handle.addEventListener('mousedown', down);
-            stickyZ = Math.min(stickyZ + 1, Z.STICKY_TOP);
-            note.style.zIndex = stickyZ;
-        });
-      })();
+          }
+
+    function move(e){
+      if (!dragging) return;
+      note.style.left = (sl + (e.clientX - sx)) + 'px';
+      note.style.top  = (st + (e.clientY - sy)) + 'px';
+    }
+
+    function up(){
+      if (!dragging) return;
+      dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      // no saving; we removed localStorage on purpose
+    }
+
+    if (handle) handle.addEventListener('mousedown', down);
+  });
+})();
 
       // === Randomize sticky positions on load ===
       function randomizeStickies(){
