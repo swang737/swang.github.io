@@ -780,6 +780,11 @@
       const taskItems = document.getElementById("taskItems");
       const tpl = document.getElementById("windowTemplate");
       const clock = document.getElementById("clock");
+      const Z = {
+        STICKY_BASE: 200,   // stickies live here
+        STICKY_TOP: 399,    // highest a sticky can go
+        WINDOW_BASE: 400    // windows start above all stickies
+      };
       // Simple list you can extend
       const PROJECTS = [
         {
@@ -856,27 +861,7 @@
         el.classList.add("inactive");
         el.classList.remove("active");
       }
-      function focusWindow(win) {
-        document
-          .querySelectorAll(".window")
-          .forEach((w) => w.classList.add("inactive"));
-        win.classList.remove("inactive");
-        win.style.zIndex = ++zCounter;
-        document
-          .querySelectorAll(".task")
-          .forEach((t) => t.classList.remove("active"));
-        if (win._taskBtn) win._taskBtn.classList.add("active");
 
-        // glow the corresponding quick launch
-        const app = win.dataset.app;
-        quickLaunch
-          .querySelectorAll(".ql.open")
-          .forEach((q) => q.classList.remove("active"));
-        if (app) {
-          const el = qlFor(app);
-          if (el) el.classList.add("active");
-        }
-      }
       function minimizeWindow(win) {
         win.classList.add("hidden");
         if (win._taskBtn) win._taskBtn.classList.add("active");
@@ -939,7 +924,7 @@
           note.addEventListener('mousedown', () => {
             notes.forEach(n => n.classList.remove('active'));
             note.classList.add('active');
-            note.style.zIndex = ++zTop;
+            note.style.zIndex = Z.STICKY_BASE;
           });
 
           // make draggable via header only
@@ -970,46 +955,38 @@
             // persist final position
             const id = note.dataset.noteId;
           };
-
+          let stickyZ = Z.STICKY_BASE;
           handle.addEventListener('mousedown', down);
-
-          // initial zIndex staging
-          note.style.zIndex = ++zTop;
+            stickyZ = Math.min(stickyZ + 1, Z.STICKY_TOP);
+            note.style.zIndex = stickyZ;
         });
       })();
 
       // === Randomize sticky positions on load ===
-      (function randomizeStickies(){
+      function randomizeStickies(){
         const desktop = document.getElementById('desktop');
-        const taskbar  = document.getElementById('taskbar'); // if you have one
+        const taskbar  = document.getElementById('taskbar');
         const notes = Array.from(document.querySelectorAll('.sticky'));
 
-        // run after layout so sizes are known
         requestAnimationFrame(() => {
-          const pad = 16; // breathing room from edges
-          const tbH = taskbar ? taskbar.offsetHeight : 40; // taskbar height
+          const pad = 16;
+          const tbH = taskbar ? taskbar.offsetHeight : 40;
           const deskW = desktop.clientWidth;
           const deskH = desktop.clientHeight;
 
           notes.forEach((note, i) => {
-            // measure note (fall back to typical size if not rendered yet)
             const w = note.offsetWidth  || 320;
             const h = note.offsetHeight || 180;
-
             const maxX = Math.max(pad, deskW - w - pad);
             const maxY = Math.max(pad, deskH - h - tbH - pad);
-
-            // spread them a bit: random + small stagger by index
-            const randX = Math.floor(Math.random() * maxX);
-            const randY = Math.floor(Math.random() * maxY);
-            const x = Math.min(maxX, Math.max(pad, randX + i * 24));
-            const y = Math.min(maxY, Math.max(pad, randY + i * 24));
-
+            const x = Math.min(maxX, Math.max(pad, Math.floor(Math.random()*maxX) + i*24));
+            const y = Math.min(maxY, Math.max(pad, Math.floor(Math.random()*maxY) + i*24));
             note.style.left = x + 'px';
             note.style.top  = y + 'px';
+            note.style.zIndex = Z.STICKY_BASE; // spawn behind windows
           });
         });
-      })();
+      }
 
       // Optional: call this to re‑roll a single note’s position later
       function respawnNote(id){
@@ -1255,28 +1232,23 @@
         return win;
       }
 
+      let zCounter = Z.WINDOW_BASE;
       function focusWindow(win) {
-        document
-          .querySelectorAll(".window")
-          .forEach((w) => w.classList.add("inactive"));
+        // Deactivate all other windows
+        document.querySelectorAll(".window").forEach(w => w.classList.add("inactive"));
+
+        // Bring selected window to front
         win.classList.remove("inactive");
         win.style.zIndex = ++zCounter;
-        document
-          .querySelectorAll(".task")
-          .forEach((t) => t.classList.remove("active"));
-        if (win._taskBtn) win._taskBtn.classList.add("active");
 
-        // reflect focus in Quick‑Launch
+        // Highlight taskbar + quick-launch button
         const app = win.dataset.app;
-        if (app) {
-          document
-            .querySelectorAll("#quickLaunch .ql.open")
-            .forEach((q) => q.classList.remove("active"));
-          const el = document.querySelector(
-            `#quickLaunch .ql[data-app="${app}"]`
-          );
-          if (el) el.classList.add("open", "active"); // ensure it’s the active one
-        }
+        document.querySelectorAll(".task[data-app]").forEach(task => {
+          task.classList.toggle("active", task.dataset.app === app);
+        });
+        document.querySelectorAll(".ql[data-app]").forEach(ql => {
+          ql.classList.toggle("active", ql.dataset.app === app);
+        });
       }
 
       function minimizeWindow(win) {
@@ -1534,12 +1506,13 @@
 
         // After boot, reveal desktop and run your init
         setTimeout(() => {
-          boot.classList.add("hidden");
-          document.getElementById("desktop").classList.remove("hidden");
-          updateClock();
-          layoutIconsVertically();
-          setTimeout(openAboutWindow, 300);
-        }, bootMs);
+        boot.classList.add("hidden");
+        document.getElementById("desktop").classList.remove("hidden");
+        updateClock();
+        layoutIconsVertically();
+        randomizeStickies(); // ✅ run only once desktop is visible
+        setTimeout(openAboutWindow, 300);
+      }, bootMs);
       });
     </script>
   </body>
