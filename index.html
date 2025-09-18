@@ -656,9 +656,9 @@
           <h3>University of Sydney</h3>
           <i>(2023 ~ Present)</i>
           <p>
-            <strong>Major: </strong>Financial Mathematics and Statistics
-            <strong>Minor: </strong>Anatomy and Histology
-            <strong>WAM: </strong>82 (D)
+            <strong>Major: </strong>Financial Mathematics and Statistics<br>
+            <strong>Minor: </strong>Anatomy and Histology<br>
+            <strong>WAM: </strong>82 (D)<br>
           </p>
           <h4>Relevant Units</h4>
         </div>
@@ -790,6 +790,24 @@
         STICKY_TOP: 399,    // highest a sticky can go
         WINDOW_BASE: 400    // windows start above all stickies
       };
+
+      function clampToDesktop(el) {
+        const parent = document.getElementById('desktop').getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        const tbH = document.getElementById('taskbar')?.offsetHeight || 40;
+
+        // Get current left/top (fallback to offset)
+        let x = parseFloat(el.style.left) || el.offsetLeft;
+        let y = parseFloat(el.style.top)  || el.offsetTop;
+
+        // Clamp to keep fully visible
+        x = Math.max(0, Math.min(x, parent.width - r.width));
+        y = Math.max(0, Math.min(y, parent.height - r.height - tbH));
+
+        el.style.left = x + 'px';
+        el.style.top  = y + 'px';
+      }
+
       // Simple list you can extend
       const PROJECTS = [
         {
@@ -1327,6 +1345,7 @@
     if (!dragging) return;
     dragging = false;
     el.releasePointerCapture?.(e.pointerId);
+    clampToDesktop(el);
   }
 
   handle.addEventListener('pointerdown', down, { passive:false });
