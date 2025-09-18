@@ -44,6 +44,11 @@
         display: grid;
         grid-template-rows: 1fr 40px;
       }
+      #desktop {
+        position: relative;
+        height: 100dvh;
+        overflow: hidden;
+      }
       .icons {
         position: relative;
         height: calc(100vh - 40px);
@@ -1006,7 +1011,7 @@
           .querySelector("[data-max]")
           .addEventListener("click", () => toggleMaximize(win));
 
-        makeDraggable(win, win.querySelector("[data-drag-handle]"));
+        makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
 
         desktop.appendChild(win);
         activateQuickLaunch("about"); // keep your quick‑launch expansion
@@ -1072,7 +1077,7 @@
         <div class="status">Ready</div>
       `;
         desktop.appendChild(win);
-        makeDraggable(win, win.querySelector("[data-drag-handle]"));
+        makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
 
         win
           .querySelector("[data-close]")
@@ -1135,7 +1140,7 @@
         `;
 
         desktop.appendChild(win);
-        makeDraggable(win, win.querySelector('[data-drag-handle]'));
+        makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
         win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
@@ -1195,7 +1200,7 @@
           <div class="status">Ready</div>
   `     ;
         desktop.appendChild(win);
-        makeDraggable(win, win.querySelector('[data-drag-handle]'));
+        makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
         win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
@@ -1277,38 +1282,57 @@
         focusWindow(win);
       }
 
-      function makeDraggable(el, handle){
-        let dragging=false, sx=0, sy=0, sl=0, st=0;
+      function makeDraggable(el, handle) {
+        let dragging = false, sx=0, sy=0, sl=0, st=0;
+
+        // Stop page scroll while touching the handle
+        handle.style.touchAction = 'none';
+
+        // Helper: get current numeric left/top in the same coord space we will write to
+        function currentPos() {
+          const cs = getComputedStyle(el);
+          const l = parseFloat(cs.left);
+          const t = parseFloat(cs.top);
+          return {
+            left: Number.isNaN(l) ? el.offsetLeft : l,
+            top:  Number.isNaN(t) ? el.offsetTop  : t
+          };
+        }
 
         function down(e){
-          if (e.button !== undefined && e.button !== 0) return;
-          dragging = true;
-          const r = el.getBoundingClientRect();
-          sx = e.clientX; sy = e.clientY;
-          sl = r.left;    st = r.top;
-          el.setPointerCapture?.(e.pointerId);
-        }
-        function move(e){
-          if (!dragging) return;
-          // translate for perf (less reflow than left/top on mobile)
-          const nx = sl + (e.clientX - sx);
-          const ny = st + (e.clientY - sy);
-          el.style.transform = `translate3d(${nx}px, ${ny}px, 0)`;
-        }
-        function up(e){
-          if (!dragging) return;
-          dragging = false;
-          // commit transform into left/top so layout persists
-          const m = el.style.transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px/);
-          if (m){ el.style.left = m[1]+'px'; el.style.top = m[2]+'px'; }
+          // If mouse: only left button
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+          // Ensure we don’t have any leftover transforms
           el.style.transform = '';
-          el.releasePointerCapture?.(e.pointerId);
+
+          const pos = currentPos();
+          sl = pos.left;  st = pos.top;
+          sx = e.clientX; sy = e.clientY;
+
+          dragging = true;
+          el.setPointerCapture?.(e.pointerId);
+          e.preventDefault?.(); // helps Safari stop text selection
         }
 
-        handle.addEventListener('pointerdown', down, {passive:true});
-        window.addEventListener('pointermove', move, {passive:true});
-        window.addEventListener('pointerup', up, {passive:true});
-      }
+  function move(e){
+    if (!dragging) return;
+    const nx = sl + (e.clientX - sx);
+    const ny = st + (e.clientY - sy);
+    el.style.left = nx + 'px';
+    el.style.top  = ny + 'px';
+  }
+
+  function up(e){
+    if (!dragging) return;
+    dragging = false;
+    el.releasePointerCapture?.(e.pointerId);
+  }
+
+  handle.addEventListener('pointerdown', down, { passive:false });
+  window.addEventListener('pointermove', move, { passive:true });
+  window.addEventListener('pointerup',   up,   { passive:true });
+}
 
       /* ===================== ICONS: vertical order + drag & snap ===================== */
       const ICON_W = 96,
