@@ -296,6 +296,53 @@
       .ql:active {
         transform: translateY(1px);
       }
+      /* Base sticky */
+      .sticky {
+        position: absolute;
+        width: 240px;
+        min-height: 140px;
+        border: 1px solid rgba(0,0,0,.25);
+        border-radius: 8px;
+        box-shadow:
+          0 10px 24px rgba(0,0,0,.25),
+          inset 0 1px 0 rgba(255,255,255,.6);
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* Title bars (drag handle) */
+      .sticky .sticky-header {
+        padding: 6px 10px;
+        font: 700 13px Tahoma, Segoe UI, Verdana, sans-serif;
+        color: #1b1b1b;
+        text-shadow: 0 1px 0 rgba(255,255,255,.5);
+        border-bottom: 1px solid rgba(0,0,0,.15);
+        cursor: move;                /* drag from here */
+      }
+
+      /* Bodies (editable) */
+      .sticky .sticky-body {
+        padding: 10px;
+        font: 13px/1.35 Tahoma, Segoe UI, Verdana, sans-serif;
+        white-space: pre-wrap;
+        outline: none;
+        user-select: text;           /* allow text selection in body */
+      }
+
+      /* Colors */
+      #note-edu { background: #fff29d; }            /* classic sticky yellow */
+      #note-edu .sticky-header { background: #ffe97a; }
+
+      #note-comp { background: #dff8c6; }           /* light classic green */
+      #note-comp .sticky-header { background: #c7f0ab; }
+
+      /* Focus (bring to front look) */
+      .sticky.active {
+        box-shadow:
+          0 12px 28px rgba(0,0,0,.3),
+          0 0 0 2px rgba(46,124,255,.35),
+          inset 0 1px 0 rgba(255,255,255,.7);
+      }
 
       .tasks {
         display: flex;
@@ -580,6 +627,26 @@
           <div class="icon-label">About Me</div>
         </div>
       </div>
+      <!-- Sticky: Competitions (Yellow) -->
+      <div class="sticky" id="note-edu" data-note-id="edu" style="left: 40px; top: 120px;">
+        <div class="sticky-header">Education</div>
+        <div class="sticky-body" contenteditable="true">
+          • University of Sydney — BSc / DMD (2023–2026)
+          • Major: Financial Maths & Statistics
+          • WAM: 82
+          • North Sydney Boys High — ATAR 99.70
+        </div>
+      </div>
+
+        <!-- Sticky: Competitions (Green) -->
+      <div class="sticky" id="note-comp" data-note-id="comp" style="left: 260px; top: 120px;">
+        <div class="sticky-header">Competitions</div>
+        <div class="sticky-body" contenteditable="true">
+          • Algothon — Top 100 (2025)
+          • AMC — High Distinction
+          • MATHCOUNTS Coaching / Team Lead
+        </div>
+      </div>
 
       <!-- Taskbar -->
       <div class="taskbar" role="toolbar" aria-label="Taskbar">
@@ -835,6 +902,80 @@
       setInterval(updateClock, 30000);
 
       let zCounter = 10;
+
+      // === Sticky Notes: drag, focus, and localStorage persistence ===
+      (function initStickyNotes(){
+        const zBase = 2000; // keep above icons but below windows unless focused
+        let zTop = zBase;
+
+        const notes = document.querySelectorAll('.sticky');
+        notes.forEach(note => {
+          // restore position & content
+          const id = note.dataset.noteId;
+          const saved = JSON.parse(localStorage.getItem('sticky:' + id) || '{}');
+          if (saved.left != null && saved.top != null) {
+            note.style.left = saved.left + 'px';
+            note.style.top  = saved.top  + 'px';
+          }
+          const body = note.querySelector('.sticky-body');
+          if (saved.content != null) body.innerText = saved.content;
+
+          // focus to top on mousedown
+          note.addEventListener('mousedown', () => {
+            notes.forEach(n => n.classList.remove('active'));
+            note.classList.add('active');
+            note.style.zIndex = ++zTop;
+          });
+
+          // save content on input
+          body.addEventListener('input', () => {
+            const rect = note.getBoundingClientRect();
+            localStorage.setItem('sticky:' + id, JSON.stringify({
+              left: parseInt(note.style.left) || rect.left,
+              top:  parseInt(note.style.top)  || rect.top,
+              content: body.innerText
+            }));
+          });
+
+          // make draggable via header only
+          const handle = note.querySelector('.sticky-header');
+          let dragging = false, sx=0, sy=0, sl=0, st=0;
+
+          const down = (e) => {
+            if (e.button !== 0) return;
+            dragging = true;
+            const r = note.getBoundingClientRect();
+            sx = e.clientX; sy = e.clientY;
+            sl = r.left;    st = r.top;
+            document.addEventListener('mousemove', move);
+            document.addEventListener('mouseup', up);
+          };
+          const move = (e) => {
+            if (!dragging) return;
+            const nx = sl + (e.clientX - sx);
+            const ny = st + (e.clientY - sy);
+            note.style.left = nx + 'px';
+            note.style.top  = ny + 'px';
+          };
+          const up = () => {
+            if (!dragging) return;
+            dragging = false;
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', up);
+            // persist final position
+            const id = note.dataset.noteId;
+            const rect = note.getBoundingClientRect();
+            localStorage.setItem('sticky:' + id, JSON.stringify({
+              left: rect.left, top: rect.top, content: body.innerText
+            }));
+          };
+
+          handle.addEventListener('mousedown', down);
+
+          // initial zIndex staging
+          note.style.zIndex = ++zTop;
+        });
+      })();
 
       function openAboutWindow() {
         let existing = document.querySelector('.window[data-app="about"]');
