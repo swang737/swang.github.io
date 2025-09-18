@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sean Wang Resume!</title>
+    <style>
+      :root {
+        --xp-blue1: #95b2e8; /* titlebar top */
+        --xp-blue2: #7a96df; /* titlebar bottom */
+        --xp-green: #29a019; /* start btn */
+        --xp-green-dark: #1b7b10;
+        --xp-task: #2662df; /* taskbar */
+        --xp-task-top: #377fe3; /* light highlight */
+        --window: #f0f0f0;
+        --shadow: rgba(0, 0, 0, 0.45);
+        --desk-shadow: rgba(0, 0, 0, 0.25);
+        --accent: #2e7cff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: Tahoma, Segoe UI, Verdana, sans-serif;
+        color: #111;
+        overflow: hidden;
+        /* Wallpaper: swap for Bliss if desired */
+        background: url("r6g38aXSaQWtd1KxwJbQ-Fs5jtSVDxX3wtLHJEdqixw.jpg.webp")
+          no-repeat center center fixed;
+        background-size: cover;
+      }
+
+      /* Desktop */
+      .desktop {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-rows: 1fr 40px;
+      }
+      .icons {
+        position: relative;
+        height: calc(100vh - 40px);
+        padding: 12px;
+        user-select: none;
+      }
+
+      /* Icons: absolute so we can drag anywhere; we'll snap to a 96px grid */
+      .desktop-icon {
+        position: absolute;
+        width: 96px;
+        height: 96px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 6px;
+        cursor: default;
+      }
+      .desktop-icon:focus-visible {
+        outline: 2px solid #fff;
+      }
+      .desktop-icon.selected {
+        background: rgba(46, 124, 255, 0.25);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+      }
+      .desktop-icon img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        image-rendering: pixelated;
+        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.45));
+      }
+      .icon-label {
+        max-width: 80px;
+        text-align: center;
+        color: #fff;
+        text-shadow: 0 2px 2px var(--desk-shadow);
+        font-size: 12px;
+        line-height: 1.1;
+      }
+
+      /* Taskbar */
+      .taskbar {
+        position: relative;                    /* needed for highlight bands */
+        height: 40px;                          /* or your 60px if you upscaled it */
+        background: var(--xp-task);            /* solid base */
+        border-top: 1px solid #377fe3;         /* subtle outer edge */
+        box-shadow: inset 0 1px 0 var(--xp-task-top), /* inner light band at very top */
+              inset 0 -1px 0 #143c9b;          /* inner dark band at bottom */
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 8px;
+        padding-left: 0px;
+      }
+
+      /* Optional: even crisper top/bottom “non‑blended” bands */
+      .taskbar::before,
+      .taskbar::after {
+        content: "";
+        position: absolute; left: 0; right: 0; height: 2px; pointer-events: none;
+      }
+      .taskbar::before { top: 0;    background: var(--xp-task-top); } /* top thin light */
+      .taskbar::after  { bottom: 0; background: #143c9b; }            /* bottom thin dark */
+      .start {
+        position: relative;                 /* for highlight/gloss layers */
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        /* XP size: smaller than taskbar with breathing room */
+        height: 40px;                       /* taskbar is 40px in your file */
+        padding: 0 20px 0 20px;
+        margin: 0 5px 0 5px;
+        margin-left: 0px;                    /* top/bottom space so it floats inside the bar */
+        margin-right: 2px;
+
+        /* XP pill: big curve on the left, small on the right */
+        border-radius: 0px 22px 22px 0px;
+
+        color: #fff;
+        font-weight: 700;
+        font-size: 20px;
+        font-style: italic;
+        text-transform: lowercase;          /* "start" */
+        letter-spacing: .2px;
+        text-shadow: 0 1px 0 rgba(0,0,0,.45);
+
+        /* XP green bevel: light → base */
+        background: linear-gradient(#46db48, var(--xp-green));
+        border: 1px solid var(--xp-green-dark);
+
+        /* thin non‑blended bands for XP look */
+        box-shadow:
+          inset 0 1px 0 #7af477,            /* 1px top inner highlight */
+          inset 0 -1px 0 #0d5d0b,           /* 1px bottom inner shadow */
+          0 2px 2px rgba(0,0,0,.35);        /* outer drop */
+      }
+      .start.win-logo { width: 20px; height: 20px; image-rendering: pixelated; object-fit: contain; }
+
+      /* 2px hard highlight strip at the very top (XP cap) */
+      .start::before {
+        content: "";
+        position: absolute; left: 0px; right: 0px; top: 2px;
+        height: 2px;
+        right: 11px;
+        background: #bdf7bb;
+        border-radius: 8px 18px 0 0;
+        pointer-events: none;
+      }
+
+/* subtle glossy dome on the top half */
+      .start::after {
+        content: "";
+        position: absolute; left: 8px; right: 8px; top: 3px;
+        height: 56%;
+        left: 0px;
+        background: linear-gradient(to bottom, rgba(255,255,255,.45), rgba(255,255,255,.08));
+        border-radius: 0px 20px 20px 0px;
+        pointer-events: none;
+      }
+
+      /* Hover & pressed (keep your current feel but tuned for the new size) */
+      .start:hover {
+        background: linear-gradient(#5fe65f, #23b31e);
+        box-shadow:
+          inset 0 1px 0 #a2f9a1,
+          inset 0 -1px 0 #0e6610,
+          0 2px 3px rgba(0,0,0,.35);
+      }
+
+      .start:active {
+        background: linear-gradient(var(--xp-green), #46db48); /* flip bevel */
+        box-shadow:
+          inset 0 1px 0 #0e6610,
+          inset 0 -1px 0 #a2f9a1,
+          0 1px 1px rgba(0,0,0,.35);
+        transform: translateY(1px);
+      }
+      .win-logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .quick-launch {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0 6px;
+        padding-left: 6px;
+      }
+
+      .ql {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 30px;
+        width: 30px;
+        padding: 2px;
+        border: none;
+        background: transparent;    /* no white boxes */
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 160ms ease; /* smooth expand */
+      }
+      .ql img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        image-rendering: pixelated;
+      }
+      .ql .ql-label {
+        display: none;              /* hidden until open */
+        font-size: 12px;
+        color: #fff;
+        text-shadow: 0 1px 0 rgba(0,0,0,.45);
+        white-space: nowrap;
+      }
+      .ql.open {
+        padding: 2px 10px;
+        min-width: 120px;
+        background: linear-gradient(#2c64c6, #1f4db0); /* XP task blue */
+        border: 1px solid #123b7c;
+        box-shadow:
+          inset 0 1px 0 #5f9df9,      /* top highlight band */
+          inset 0 -1px 0 #1d3d8c,     /* bottom band */
+          0 0 10px rgba(66,130,255,.55); /* outer glow */
+      }
+      .ql.open .ql-label { display: inline; }
+
+      /* Focused/active window: brighter glow */
+      .ql.open.active {
+        box-shadow:
+          inset 0 1px 0 #8dbffd,
+          inset 0 -1px 0 #18387f,
+          0 0 14px rgba(100,160,255,.85);
+      }
+
+      /* Optional: dim when window is minimized/inactive */
+      .ql.open.inactive {
+        filter: saturate(.8) brightness(.95);
+        box-shadow:
+          inset 0 1px 0 #5f9df9,
+          inset 0 -1px 0 #1d3d8c;
+      }
+
+      .ql:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 4px;
+      }
+      .ql:active {
+        transform: translateY(1px);
+      }
+
+      .tasks {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        flex: 1;
+        padding: 0 6px;
+      }
+      .task {
+        white-space: nowrap;
+        padding: 6px 12px;
+        background: linear-gradient(#fdfdfd, #e6e6e6);
+        color: #111;
+        border-radius: 4px;
+        border: 1px solid #c6c6c6;
+        box-shadow: 0 1px 0 #fff inset;
+        cursor: pointer;
+      }
+      .task.active {
+        outline: 2px solid var(--accent);
+      }
+
+      .tray {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 6px;
+        border-left: 1px solid #cfcfcf;
+      }
+      .clock {
+        font-size: 12px;
+        color: #333;
+      }
+
+      /* Windows */
+      .window {
+        position: absolute;
+        min-width: 360px;
+        min-height: 240px;
+        max-width: min(880px, 92vw);
+        max-height: min(76vh, 92vh);
+        background: var(--window);
+        border: 1px solid #003;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 8px 10px 0 rgba(0, 0, 0, 0.25),
+          0 0 0 1px rgba(0, 0, 0, 0.35) inset;
+        display: grid;
+        grid-template-rows: 28px 1fr 24px;
+      }
+      .window.inactive {
+        opacity: 0.98;
+        filter: saturate(0.95);
+      }
+
+      .titlebar {
+        position: relative;
+        height: 28px;
+        background: var(--xp-blue2); /* solid base */
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 4px 0 8px;
+        cursor: move;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+      }
+
+/* 2px highlight at top and 2px shadow at bottom */
+      .titlebar::before,
+      .titlebar::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        pointer-events: none;
+      }
+
+      .titlebar::before {
+        top: 0;
+        background: var(--xp-blue1); /* top highlight band */
+      }
+
+      .titlebar::after {
+        bottom: 0;
+        background: #5c76bf; /* bottom shadow (manually tuned) */
+      }
+
+      .title-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .title-left .mini-icon {
+        width: 16px;
+        height: 16px;
+      }
+      .title-text {
+        font-weight: 700;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+      }
+
+      .title-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .ctl {
+        width: 22px;
+        height: 20px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #5c76bf; /* XP-style deep blue border */
+        border-radius: 3px;
+        background: linear-gradient(#5f86eb, #7a96df); /* top highlight blue → base */
+        cursor: pointer;
+        box-shadow:
+          inset 0 1px 0 #ffffff,  /* top inner highlight */
+          inset 0 -1px 0 #5673c1; /* bottom inner shadow */
+      }
+      .ctl:hover {
+        background: linear-gradient(#a4c6f4, #88a9e8); /* brighter on hover */
+      }
+
+      .ctl:active {
+        background: linear-gradient(#7a96df, var(--xp-blue1)); /* reverse bevel on press */
+        box-shadow:
+          inset 0 1px 0 #5673c1,
+          inset 0 -1px 0 #ffffff;
+      }
+      .ctl.close {
+        background: linear-gradient(#ff7878, #db2f2f);
+        border-color: #7a0a0a;
+      }
+      .ctl.close:hover {
+        background: linear-gradient(#ff9999, #e64545); /* lighter red gradient */
+        border-color: #a00000;
+      }
+
+      /* Active = pressed state (bevel reversed) */
+      .ctl.close:active {
+        background: linear-gradient(#db2f2f, #ff7878); /* reverse bevel */
+        box-shadow:
+          inset 0 1px 0 #a00000,
+          inset 0 -1px 0 #ffbdbd;
+      }
+      .ctl svg {
+        width: 12px;
+        height: 12px;
+        fill: #111;
+      }
+
+      .content {
+        background: #fff;
+        padding: 12px;
+        overflow: auto;
+      }
+      .content h2 {
+        margin: 0 0 8px;
+      }
+      .content p {
+        margin: 0 0 10px;
+      }
+      .status {
+        height: 24px;
+        background: linear-gradient(#efefef, #e4e4e4);
+        border-top: 1px solid #c9c9c9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 8px;
+        font-size: 12px;
+        color: #333;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      /* XP boot overlay */
+
+      .boot-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #0a1648; /* XP boot blue */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: Tahoma, Segoe UI, Verdana, sans-serif;
+      }
+
+      /* Windows XP wordmark vibe */
+      .boot-logo {
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: clamp(24px, 4vw, 40px);
+        margin-bottom: 24px;
+      }
+
+      /* progress bar container */
+      .boot-bar {
+        width: min(360px, 70vw);
+        height: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 12px;
+        padding: 2px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset,
+          0 2px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      /* animated bar */
+      .boot-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #1e90ff, #6bb7ff);
+        animation: boot-progress var(--bootMs, 7000ms) linear forwards;
+      }
+
+      /* small “Starting Windows…” text */
+      .boot-sub {
+        opacity: 0.85;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      @keyframes boot-progress {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- XP Boot Screen -->
+    <div id="boot" class="boot-screen">
+      <img src="Windows XP.ico" alt="Logo" style="height: 200px; width: auto; margin-bottom: 24px;" />
+      <div class="boot-bar"><div class="boot-fill"></div></div>
+      <div class="boot-sub">Starting Windows…</div>
+    </div>
+    <div class="desktop hidden" id="desktop">
+    <div class="desktop" id="desktop">
+      <!-- Desktop icons (ordered top-to-bottom as requested: bin, notes/explorer, about) -->
+      <div class="icons" id="iconGrid" aria-label="Desktop">
+        <div class="desktop-icon" tabindex="0" data-app="bin">
+          <img src="bin.ico" alt="Recycle Bin" />
+          <div class="icon-label">Recycle Bin</div>
+        </div>
+
+        <div class="desktop-icon" tabindex="0" data-app="notes">
+          <img src="explorer.ico" alt="Notes Icon" />
+          <div class="icon-label">Explorer</div>
+        </div>
+
+        <div class="desktop-icon" tabindex="0" data-app="about">
+          <img src="My_Computer.ico" alt="About Us" />
+          <div class="icon-label">About Us</div>
+        </div>
+      </div>
+
+      <!-- Taskbar -->
+      <div class="taskbar" role="toolbar" aria-label="Taskbar">
+        <button class="start" id="startBtn" title="Start">
+          <img src="Windows XP.ico" alt="Windows Logo" class="win-logo" />
+          Start
+        </button>
+
+        <div class="quick-launch" id="quickLaunch">
+          <!-- Recycle Bin -->
+          <div class="ql" title="Recycle Bin" data-app="bin">
+            <img src="bin.ico" alt="Bin" />
+            <span class="ql-label">Recycle Bin</span>
+          </div>
+        
+          <!-- Notes -->
+          <div class="ql" title="Notes" data-app="notes">
+            <img src="explorer.ico" alt="Notes" />
+            <span class="ql-label">Notes</span>
+          </div>
+        
+          <!-- About Us -->
+          <div class="ql" title="About Us" data-app="about">
+            <img src="My_Computer.ico" alt="About" />
+            <span class="ql-label">About Me</span>
+          </div>
+        </div>
+
+        <div class="tasks" id="taskItems" aria-live="polite"></div>
+
+        <div class="tray">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="6" fill="#6bcf3c" />
+          </svg>
+          <div class="clock" id="clock">12:00 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Window template -->
+    <template id="windowTemplate">
+      <div class="window" role="dialog" aria-modal="false">
+        <div class="titlebar" data-drag-handle>
+          <div class="title-left">
+            <svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#e6f0ff" d="M12 2a10 10 0 100 20a10 10 0 000-20" />
+            </svg>
+            <span class="title-text">About Us</span>
+          </div>
+          <div class="title-controls">
+            <button class="ctl" data-min title="Minimize" aria-label="Minimize">
+              <svg viewBox="0 0 24 24"><path d="M6 19h12v-2H6z" /></svg>
+            </button>
+            <button class="ctl" data-max title="Maximize" aria-label="Maximize">
+              <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z" /></svg>
+            </button>
+            <button
+              class="ctl close"
+              data-close
+              title="Close"
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M18.3 5.71L12 12.01l-6.3-6.3L4.29 7.1l6.3 6.3l-6.3 6.3l1.41 1.41l6.3-6.29l6.3 6.3l1.41-1.41l-6.29-6.3l6.3-6.29z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="content">
+          <h2>Hey, My name is Sean Wang!</h2>
+          <p>
+            Welcome to <strong>Resume</strong>! I'm a third year student at the University of Sydney, 
+            currently studying Bachelor of Science and Doctor of Dental Medicine. I major in Financial
+            Maths and Statistics and Minor in Anatomy and Histology. Some of my skills include:
+
+          </p>
+          <ul>
+            <li>Statistical Modelling and Machine Learning</li>
+            <li>Python, HTML, CSS, JS</li>
+            <li>numpy, pandas, matplotlib, scikit, statsmodels</li>
+            <li>Financial Markets</li>
+          </ul>
+          <p>
+            Say hi! ~ 
+            <a href="#" onclick="alert('seanwang.sydney@gmail.com');return false;"
+              >seanwang.sydney@gmail.com</a
+            >
+          </p>
+        </div>
+        <div class="status">Ready</div>
+      </div>
+    </template>
+
+    <script>
+      const desktop = document.getElementById("desktop");
+      const iconGrid = document.getElementById("iconGrid");
+      const taskItems = document.getElementById("taskItems");
+      const tpl = document.getElementById("windowTemplate");
+      const clock = document.getElementById("clock");
+
+      document.querySelectorAll('.ql').forEach(btn => {
+          btn.addEventListener('click', () => {
+          const app = btn.dataset.app;
+          if (app === 'about') openAboutWindow();
+          else if (app === 'bin') alert('Recycle Bin is empty.');
+          else alert(`${app} app coming soon`);
+        });
+      });
+
+      const quickLaunch = document.getElementById('quickLaunch');
+
+      function qlFor(app) {
+        return quickLaunch.querySelector(`.ql[data-app="${app}"]`);
+      }
+
+      function activateQuickLaunch(app) {
+        const el = qlFor(app);
+        if (!el) return;
+        // move to rightmost position
+        quickLaunch.appendChild(el);
+        // expand
+        el.classList.add('open', 'active');
+        // collapse others
+        quickLaunch.querySelectorAll('.ql.open').forEach(q => {
+          if (q !== el) q.classList.remove('active');
+        });
+      }
+
+      function deactivateQuickLaunch(app) {
+        const el = qlFor(app);
+        if (!el) return;
+        el.classList.remove('open', 'active', 'inactive');
+      }
+
+      function markQuickLaunchInactive(app) {
+        const el = qlFor(app);
+        if (!el) return;
+        el.classList.add('inactive');
+        el.classList.remove('active');
+      }
+      function focusWindow(win) {
+        document.querySelectorAll('.window').forEach(w => w.classList.add('inactive'));
+        win.classList.remove('inactive');
+        win.style.zIndex = ++zCounter;
+        document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+        if (win._taskBtn) win._taskBtn.classList.add('active');
+
+        // glow the corresponding quick launch
+        const app = win.dataset.app;
+        quickLaunch.querySelectorAll('.ql.open').forEach(q => q.classList.remove('active'));
+        if (app) { const el = qlFor(app); if (el) el.classList.add('active'); }
+      }
+      function minimizeWindow(win){
+        win.classList.add('hidden');
+        if (win._taskBtn) win._taskBtn.classList.add('active');
+        const app = win.dataset.app;
+        if (app) markQuickLaunchInactive(app);
+      }
+      function closeWindow(win){
+        if (win._taskBtn) win._taskBtn.remove();
+        const app = win.dataset.app;
+        if (app) deactivateQuickLaunch(app);
+        win.remove();
+      }
+      quickLaunch.addEventListener('click', (e) => {
+        const btn = e.target.closest('.ql');
+        if (!btn) return;
+        const app = btn.dataset.app;
+        if (app === 'about') openAboutWindow();
+        else if (app === 'notes') alert('Notes is coming soon.');
+        else if (app === 'bin') alert('Recycle Bin is empty.');
+      });
+
+      // Simple clock
+      function updateClock() {
+        const d = new Date();
+        const h = d.getHours();
+        const m = d.getMinutes().toString().padStart(2, "0");
+        const ampm = h >= 12 ? "PM" : "AM";
+        const hh = ((h + 11) % 12) + 1;
+        clock.textContent = `${hh}:${m} ${ampm}`;
+      }
+      updateClock();
+      setInterval(updateClock, 30000);
+
+      let zCounter = 10;
+
+      function openAboutWindow() {
+        let existing = document.querySelector('.window[data-app="about"]');
+        if (existing) {
+          focusWindow(existing);
+          return existing;
+        }
+        const win = tpl.content.firstElementChild.cloneNode(true);
+        win.dataset.app = "about";
+        win.dataset.title = "About Us";
+        const vw = window.innerWidth,
+          vh = window.innerHeight;
+        const x = Math.max(8, Math.min(vw - 420, 90 + Math.random() * 120));
+        const y = Math.max(8, Math.min(vh - 320, 90 + Math.random() * 80));
+        Object.assign(win.style, { left: x + "px", top: y + "px" });
+
+        // Controls
+        win
+          .querySelector("[data-close]")
+          .addEventListener("click", () => closeWindow(win));
+        win
+          .querySelector("[data-min]")
+          .addEventListener("click", () => minimizeWindow(win));
+        win
+          .querySelector("[data-max]")
+          .addEventListener("click", () => toggleMaximize(win));
+
+        makeWindowDraggable(win, win.querySelector("[data-drag-handle]"));
+
+        desktop.appendChild(win);
+        activateQuickLaunch('about'); // keep your quick‑launch expansion
+        //remove any previously created task button if it exists
+        if (win._taskBtn) { win._taskBtn.remove(); win._taskBtn = null; }
+        focusWindow(win);
+        return win;
+      }
+
+      function focusWindow(win){
+        document.querySelectorAll('.window').forEach(w => w.classList.add('inactive'));
+        win.classList.remove('inactive');
+        win.style.zIndex = ++zCounter;
+        document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+        if (win._taskBtn) win._taskBtn.classList.add('active');
+
+        // reflect focus in Quick‑Launch
+        const app = win.dataset.app;
+        if (app) {
+          document.querySelectorAll('#quickLaunch .ql.open').forEach(q => q.classList.remove('active'));
+          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
+          if (el) el.classList.add('open','active'); // ensure it’s the active one
+          }
+      }
+
+      function minimizeWindow(win){
+        win.classList.add('hidden');
+        if (win._taskBtn) win._taskBtn.classList.add('active');
+        const app = win.dataset.app;
+        if (app) {
+          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
+          if (el) { el.classList.add('inactive'); el.classList.remove('active'); }
+        }
+      }
+
+      function closeWindow(win){
+        if (win._taskBtn) win._taskBtn.remove();
+        const app = win.dataset.app;
+        if (app) {
+          const el = document.querySelector(`#quickLaunch .ql[data-app="${app}"]`);
+          if (el) el.classList.remove('open','active','inactive'); // ← collapse back to icon
+        }
+        win.remove();
+      }
+
+      function toggleMaximize(win) {
+        if (!win._restore) {
+          const r = win.getBoundingClientRect();
+          win._restore = {
+            left: r.left,
+            top: r.top,
+            width: r.width,
+            height: r.height,
+          };
+          Object.assign(win.style, {
+            left: "8px",
+            top: "8px",
+            width: window.innerWidth - 16 + "px",
+            height: window.innerHeight - 56 + "px",
+          });
+        } else {
+          const { left, top, width, height } = win._restore;
+          delete win._restore;
+          Object.assign(win.style, {
+            left: left + "px",
+            top: top + "px",
+            width: width + "px",
+            height: height + "px",
+          });
+        }
+        focusWindow(win);
+      }
+
+      // Window drag helper
+      function makeWindowDraggable(win, handle) {
+        let sx = 0,
+          sy = 0,
+          sl = 0,
+          st = 0,
+          dragging = false;
+
+        const down = (e) => {
+          if (e.button !== 0) return;
+          focusWindow(win);
+
+          sx = e.clientX;
+          sy = e.clientY;
+          const rect = win.getBoundingClientRect();
+          sl = rect.left;
+          st = rect.top;
+
+          document.addEventListener("mousemove", maybeStartDrag);
+          document.addEventListener("mouseup", cancelEarly);
+        };
+
+        let maybeStartDrag = function (e) {
+          const dx = Math.abs(e.clientX - sx);
+          const dy = Math.abs(e.clientY - sy);
+          if (dx > 5 || dy > 5) {
+            startDragging();
+          }
+        };
+
+        const cancelEarly = () => {
+          document.removeEventListener("mousemove", maybeStartDrag);
+          document.removeEventListener("mouseup", cancelEarly);
+        };
+
+        const startDragging = () => {
+          dragging = true;
+          document.removeEventListener("mousemove", maybeStartDrag);
+          document.removeEventListener("mouseup", cancelEarly);
+
+          document.addEventListener("mousemove", move);
+          document.addEventListener("mouseup", up);
+        };
+
+        const move = (e) => {
+          if (!dragging) return;
+          let nx = sl + (e.clientX - sx);
+          let ny = st + (e.clientY - sy);
+          const maxX = window.innerWidth - win.offsetWidth;
+          const maxY = window.innerHeight - win.offsetHeight - 40; // subtract taskbar
+          nx = Math.min(Math.max(0, nx), maxX);
+          ny = Math.min(Math.max(0, ny), maxY);
+          win.style.left = nx + "px";
+          win.style.top = ny + "px";
+        };
+
+        const up = () => {
+          dragging = false;
+          document.removeEventListener("mousemove", move);
+          document.removeEventListener("mouseup", up);
+        };
+
+        handle.addEventListener("mousedown", down);
+        win.addEventListener("mousedown", () => focusWindow(win));
+        activateQuickLaunch('about');
+      }
+
+      /* ===================== ICONS: vertical order + drag & snap ===================== */
+      const ICON_W = 96,
+        ICON_H = 96,
+        ICON_GAP = 8,
+        ICON_MARGIN = 12;
+      const ICON_ORDER = ["bin", "notes", "about"]; // top-to-bottom
+
+      function setIconPosition(el, left, top) {
+        el.style.left = left + "px";
+        el.style.top = top + "px";
+      }
+      function saveIconPosition(el) {
+        localStorage.setItem(
+          "icon:" + el.dataset.app,
+          JSON.stringify({ left: el.offsetLeft, top: el.offsetTop })
+        );
+      }
+      function restoreIconPosition(el) {
+        const raw = localStorage.getItem("icon:" + el.dataset.app);
+        if (!raw) return false;
+        try {
+          const p = JSON.parse(raw);
+          setIconPosition(el, p.left, p.top);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      function snap(n, size) {
+        return Math.round(n / (size + ICON_GAP)) * (size + ICON_GAP);
+      }
+
+      function makeIconDraggable(el) {
+        let sx = 0,
+          sy = 0,
+          sl = 0,
+          st = 0,
+          dragging = false;
+        const down = (e) => {
+          if (e.button !== 0) return;
+          dragging = true;
+          sx = e.clientX;
+          sy = e.clientY;
+          sl = el.offsetLeft;
+          st = el.offsetTop;
+          document.addEventListener("mousemove", move);
+          document.addEventListener("mouseup", up);
+        };
+        const move = (e) => {
+          if (!dragging) return;
+          let nx = sl + (e.clientX - sx);
+          let ny = st + (e.clientY - sy);
+          const bounds = iconGrid.getBoundingClientRect();
+          const maxX = bounds.width - ICON_W - ICON_MARGIN;
+          const maxY = bounds.height - ICON_H - ICON_MARGIN;
+          nx = Math.min(Math.max(ICON_MARGIN, nx), Math.max(ICON_MARGIN, maxX));
+          ny = Math.min(Math.max(ICON_MARGIN, ny), Math.max(ICON_MARGIN, maxY));
+          setIconPosition(el, nx, ny);
+        };
+        const up = () => {
+          if (!dragging) return;
+          dragging = false;
+          // Snap to grid
+          const nx = ICON_MARGIN + snap(el.offsetLeft - ICON_MARGIN, ICON_W);
+          const ny = ICON_MARGIN + snap(el.offsetTop - ICON_MARGIN, ICON_H);
+          setIconPosition(el, nx, ny);
+          saveIconPosition(el);
+          document.removeEventListener("mousemove", move);
+          document.removeEventListener("mouseup", up);
+        };
+        el.addEventListener("mousedown", down);
+      }
+
+      function layoutIconsVertically() {
+        ICON_ORDER.forEach((app, i) => {
+          const el = document.querySelector(`.desktop-icon[data-app="${app}"]`);
+          if (!el) return;
+          if (!restoreIconPosition(el)) {
+            const left = ICON_MARGIN;
+            const top = ICON_MARGIN + i * (ICON_H + ICON_GAP);
+            setIconPosition(el, left, top);
+          }
+          makeIconDraggable(el);
+        });
+      }
+
+      // Desktop interactions
+      iconGrid.addEventListener("click", (e) => {
+        const icon = e.target.closest(".desktop-icon");
+        if (!icon) return;
+        document
+          .querySelectorAll(".desktop-icon")
+          .forEach((i) => i.classList.remove("selected"));
+        icon.classList.add("selected");
+      });
+      iconGrid.addEventListener("dblclick", (e) => {
+        const icon = e.target.closest(".desktop-icon");
+        if (!icon) return;
+        const app = icon.dataset.app;
+        if (app === "about") openAboutWindow();
+        else if (app === "bin") alert("Recycle Bin is empty.");
+        else alert("This app is coming soon.");
+      });
+
+      // Keyboard open (Enter/Space)
+      document.addEventListener("keydown", (e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          document.activeElement?.classList.contains("desktop-icon")
+        ) {
+          const app = document.activeElement.dataset.app;
+          if (app === "about") openAboutWindow();
+        }
+        if (e.key === "Escape") {
+          const top = [...document.querySelectorAll(".window")].sort(
+            (a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0)
+          )[0];
+          if (top) closeWindow(top);
+        }
+      });
+
+      // Init
+      window.addEventListener("load", () => {
+        const boot = document.getElementById("boot");
+        const fill = boot.querySelector(".boot-fill");
+        const bootMs = 2000; // 5–10s
+
+        // set animation duration dynamically
+        fill.style.animationDuration = `${bootMs}ms`;
+
+        // After boot, reveal desktop and run your init
+        setTimeout(() => {
+          boot.classList.add("hidden");
+          document.getElementById("desktop").classList.remove("hidden");
+          updateClock();
+          layoutIconsVertically();
+          setTimeout(openAboutWindow, 300);
+        }, bootMs);
+      });
+    </script>
+  </body>
+</html>
