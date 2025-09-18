@@ -609,10 +609,10 @@
         </div>
 
         <!-- Projects -->
-        <div class="ql" title="Projects" data-app="projects">
-          <img src="folder.ico" alt="Projects" />
-          <span class="ql-label">Projects</span>
-        </div>
+          <div class="ql" title="Projects" data-app="projects">
+            <img src="folder.ico" alt="Projects" />
+            <span class="ql-label">Projects</span>
+          </div>
 
         <div class="tasks" id="taskItems" aria-live="polite"></div>
 
@@ -948,6 +948,7 @@
         if (kind === "html") return "file-html.ico";
         if (kind === "pdf")  return "file-pdf.ico";
         return "file.ico";
+        return win;
       }
 
       function openProjectsWindow() {
@@ -1056,6 +1057,7 @@
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
         focusWindow(win);
+        return win;
       }
 
       function focusWindow(win) {
@@ -1208,7 +1210,7 @@
         ICON_H = 96,
         ICON_GAP = 8,
         ICON_MARGIN = 12;
-      const ICON_ORDER = ["bin", "explorer", "about"]; // top-to-bottom
+      const ICON_ORDER = ["bin", "explorer", "about", "projects"]; // top-to-bottom
 
       function setIconPosition(el, left, top) {
         el.style.left = left + "px";
