@@ -322,11 +322,27 @@
 
       /* Bodies (editable) */
       .sticky .sticky-body {
-        padding: 10px;
-        font: 13px/1.35 Tahoma, Segoe UI, Verdana, sans-serif;
-        white-space: pre-wrap;
-        outline: none;
-        user-select: text;           /* allow text selection in body */
+        white-space: normal;              /* was pre-wrap; avoids weird breaks */
+        line-height: 1.35;
+        font-size: 14px;
+      }
+
+      .sticky .sticky-body h3,
+      .sticky .sticky-body h4 {
+        margin: 4px 0 6px;                /* smaller heading margins */
+        font-size: 15px;                  /* keep headings only slightly bigger */
+        font-weight: 700;
+      }
+
+      .sticky .sticky-body p {
+        margin: 6px 0;                    /* tighter paragraphs */
+      }
+
+      .sticky .sticky-body i {
+        display: block;                   /* put the date on its own line nicely */
+        margin: 2px 0 6px;
+        font-style: italic;
+        opacity: .9;
       }
 
       /* Colors */
@@ -631,13 +647,14 @@
       <div class="sticky" id="note-edu" data-note-id="edu" style="left: 40px; top: 120px;">
         <div class="sticky-header">Education</div>
         <div class="sticky-body" contenteditable="true">
-          <h2>University of Sydney</h2>
+          <h3>University of Sydney</h3>
           <i>(2023 ~ Present)</i>
           <p>
             <strong>Major: </strong>Financial Mathematics and Statistics
             <strong>Minor: </strong>Anatomy and Histology
             <strong>WAM: </strong>82 (D)
           </p>
+          <h4>Relevant Units</h4>
         </div>
       </div>
 
