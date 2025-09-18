@@ -969,10 +969,6 @@
             document.removeEventListener('mouseup', up);
             // persist final position
             const id = note.dataset.noteId;
-            const rect = note.getBoundingClientRect();
-            localStorage.setItem('sticky:' + id, JSON.stringify({
-              left: rect.left, top: rect.top, content: body.innerText
-            }));
           };
 
           handle.addEventListener('mousedown', down);
