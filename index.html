@@ -714,7 +714,6 @@
             <img src="My_Computer.ico" alt="About" />
             <span class="ql-label">About Me</span>
           </div>
-          </div>
 
           <!-- Projects -->
           <div class="ql" title="Projects" data-app="projects">
@@ -920,7 +919,8 @@
 
         if (!win) {
           if (app === "about") win = openAboutWindow();
-          else if (app === "explorer") win = openExplorerWindow(); // <-- fixed
+          else if (app === "projects") win = openProjectsWindow();
+          else if (app === "explorer") win = openExplorerWindow();
           else if (app === "bin") return alert("Recycle Bin is empty.");
         }
 
