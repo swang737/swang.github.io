@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Sean Wang Resume!</title>
     <style>
       :root {
@@ -909,7 +909,6 @@
       setInterval(updateClock, 30000);
 
       // === Sticky Notes: drag, focus, and localStorage persistence ===
-      // Stickies: init + drag + keep below windows
       (function initStickyNotes(){
         const notes = document.querySelectorAll('.sticky');
 
@@ -920,48 +919,19 @@
           // start behind windows
           note.style.zIndex = Z.STICKY_BASE;
 
-          // focus style (purely visual)
+          // drag using the unified helper
+          const handle = note.querySelector('.sticky-header');
+          if (handle) {
+            makeDraggable(note, handle);
+          }
+
+          // (optional) simple focus styling on click
           note.addEventListener('mousedown', () => {
             notes.forEach(n => n.classList.remove('active'));
             note.classList.add('active');
           });
-
-          // drag only from the header
-          const handle = note.querySelector('.sticky-header');
-          let dragging = false, sx=0, sy=0, sl=0, st=0;
-
-          function down(e){
-            if (e.button !== 0) return;
-
-            // bump within sticky band (keeps below windows)
-            stickyZ = Math.min(stickyZ + 1, Z.STICKY_TOP); // e.g., 399
-            note.style.zIndex = stickyZ;
-
-            dragging = true;
-            const r = note.getBoundingClientRect();
-            sx = e.clientX; sy = e.clientY;
-            sl = r.left;    st = r.top;
-            document.addEventListener('mousemove', move);
-            document.addEventListener('mouseup', up);
-          }
-
-    function move(e){
-      if (!dragging) return;
-      note.style.left = (sl + (e.clientX - sx)) + 'px';
-      note.style.top  = (st + (e.clientY - sy)) + 'px';
-    }
-
-    function up(){
-      if (!dragging) return;
-      dragging = false;
-      document.removeEventListener('mousemove', move);
-      document.removeEventListener('mouseup', up);
-      // no saving; we removed localStorage on purpose
-    }
-
-    if (handle) handle.addEventListener('mousedown', down);
-  });
-})();
+        });
+      })();
 
       // === Randomize sticky positions on load ===
       function randomizeStickies(){
@@ -1036,7 +1006,7 @@
           .querySelector("[data-max]")
           .addEventListener("click", () => toggleMaximize(win));
 
-        makeWindowDraggable(win, win.querySelector("[data-drag-handle]"));
+        makeDraggable(win, win.querySelector("[data-drag-handle]"));
 
         desktop.appendChild(win);
         activateQuickLaunch("about"); // keep your quick‑launch expansion
@@ -1102,7 +1072,7 @@
         <div class="status">Ready</div>
       `;
         desktop.appendChild(win);
-        makeWindowDraggable(win, win.querySelector("[data-drag-handle]"));
+        makeDraggable(win, win.querySelector("[data-drag-handle]"));
 
         win
           .querySelector("[data-close]")
@@ -1165,7 +1135,7 @@
         `;
 
         desktop.appendChild(win);
-        makeWindowDraggable(win, win.querySelector('[data-drag-handle]'));
+        makeDraggable(win, win.querySelector('[data-drag-handle]'));
         win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
@@ -1225,7 +1195,7 @@
           <div class="status">Ready</div>
   `     ;
         desktop.appendChild(win);
-        makeWindowDraggable(win, win.querySelector('[data-drag-handle]'));
+        makeDraggable(win, win.querySelector('[data-drag-handle]'));
         win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
@@ -1307,70 +1277,37 @@
         focusWindow(win);
       }
 
-      // Window drag helper
-      function makeWindowDraggable(win, handle) {
-        let sx = 0,
-          sy = 0,
-          sl = 0,
-          st = 0,
-          dragging = false;
+      function makeDraggable(el, handle){
+        let dragging=false, sx=0, sy=0, sl=0, st=0;
 
-        const down = (e) => {
-          if (e.button !== 0) return;
-          focusWindow(win);
-
-          sx = e.clientX;
-          sy = e.clientY;
-          const rect = win.getBoundingClientRect();
-          sl = rect.left;
-          st = rect.top;
-
-          document.addEventListener("mousemove", maybeStartDrag);
-          document.addEventListener("mouseup", cancelEarly);
-        };
-
-        let maybeStartDrag = function (e) {
-          const dx = Math.abs(e.clientX - sx);
-          const dy = Math.abs(e.clientY - sy);
-          if (dx > 5 || dy > 5) {
-            startDragging();
-          }
-        };
-
-        const cancelEarly = () => {
-          document.removeEventListener("mousemove", maybeStartDrag);
-          document.removeEventListener("mouseup", cancelEarly);
-        };
-
-        const startDragging = () => {
+        function down(e){
+          if (e.button !== undefined && e.button !== 0) return;
           dragging = true;
-          document.removeEventListener("mousemove", maybeStartDrag);
-          document.removeEventListener("mouseup", cancelEarly);
-
-          document.addEventListener("mousemove", move);
-          document.addEventListener("mouseup", up);
-        };
-
-        const move = (e) => {
+          const r = el.getBoundingClientRect();
+          sx = e.clientX; sy = e.clientY;
+          sl = r.left;    st = r.top;
+          el.setPointerCapture?.(e.pointerId);
+        }
+        function move(e){
           if (!dragging) return;
-          let nx = sl + (e.clientX - sx);
-          let ny = st + (e.clientY - sy);
-          const maxX = window.innerWidth - win.offsetWidth;
-          const maxY = window.innerHeight - win.offsetHeight - 40; // subtract taskbar
-          nx = Math.min(Math.max(0, nx), maxX);
-          ny = Math.min(Math.max(0, ny), maxY);
-          win.style.left = nx + "px";
-          win.style.top = ny + "px";
-        };
-
-        const up = () => {
+          // translate for perf (less reflow than left/top on mobile)
+          const nx = sl + (e.clientX - sx);
+          const ny = st + (e.clientY - sy);
+          el.style.transform = `translate3d(${nx}px, ${ny}px, 0)`;
+        }
+        function up(e){
+          if (!dragging) return;
           dragging = false;
-          document.removeEventListener("mousemove", move);
-          document.removeEventListener("mouseup", up);
-        };
+          // commit transform into left/top so layout persists
+          const m = el.style.transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px/);
+          if (m){ el.style.left = m[1]+'px'; el.style.top = m[2]+'px'; }
+          el.style.transform = '';
+          el.releasePointerCapture?.(e.pointerId);
+        }
 
-        handle.addEventListener("mousedown", down);
-        win.addEventListener("mousedown", () => focusWindow(win));
+        handle.addEventListener('pointerdown', down, {passive:true});
+        window.addEventListener('pointermove', move, {passive:true});
+        window.addEventListener('pointerup', up, {passive:true});
       }
 
       /* ===================== ICONS: vertical order + drag & snap ===================== */
