@@ -934,13 +934,6 @@
         notes.forEach(note => {
           // restore position & content
           const id = note.dataset.noteId;
-          const saved = JSON.parse(localStorage.getItem('sticky:' + id) || '{}');
-          if (saved.left != null && saved.top != null) {
-            note.style.left = saved.left + 'px';
-            note.style.top  = saved.top  + 'px';
-          }
-          const body = note.querySelector('.sticky-body');
-          if (saved.content != null) body.innerText = saved.content;
 
           // focus to top on mousedown
           note.addEventListener('mousedown', () => {
