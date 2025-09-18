@@ -77,6 +77,27 @@
         image-rendering: pixelated;
         filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.45));
       }
+      .file-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+        padding: 10px;
+        background: #fff;
+      }
+      .file-item {
+        display: flex; gap: 8px; align-items: center;
+        padding: 8px; border: 1px solid #d9d9d9; border-radius: 6px;
+        background: linear-gradient(#fff, #f5f7ff);
+        cursor: default;
+        user-select: none;
+      }
+      .file-item:hover { border-color: #2e7cff; box-shadow: 0 0 0 1px #2e7cff inset; }
+      .file-item.selected { background: #cfe2ff; border-color: #2e7cff; }
+      .file-item .ficon { width: 24px; height: 24px; image-rendering: pixelated; object-fit: contain; }
+      .file-item .meta { display: grid; }
+      .file-item .name { font-weight: 700; }
+      .file-item .sub { font-size: 12px; opacity: .75; }
+
       .icon-label {
         max-width: 80px;
         text-align: center;
@@ -543,6 +564,11 @@
           <img src="bin.ico" alt="Recycle Bin" />
           <div class="icon-label">Recycle Bin</div>
         </div>
+        
+        <div class="desktop-icon" tabindex="0" data-app="projects">
+          <img src="folder.ico" alt="Projects Folder" />
+          <div class="icon-label">Projects</div>
+        </div>
 
         <div class="desktop-icon" tabindex="0" data-app="explorer">
           <img src="explorer.ico" alt="Explorer Icon" />
@@ -580,6 +606,12 @@
             <img src="My_Computer.ico" alt="About" />
             <span class="ql-label">About Me</span>
           </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="ql" title="Projects" data-app="projects">
+          <img src="folder.ico" alt="Projects" />
+          <span class="ql-label">Projects</span>
         </div>
 
         <div class="tasks" id="taskItems" aria-live="polite"></div>
@@ -660,6 +692,39 @@
       const taskItems = document.getElementById("taskItems");
       const tpl = document.getElementById("windowTemplate");
       const clock = document.getElementById("clock");
+      // Simple list you can extend
+      const PROJECTS = [
+        {
+          id: "p1",
+          name: "Stock Predictor.exe",
+          kind: "exe",
+          summary: "LSTM model + sentiment to forecast stocks.",
+          tech: ["Python","TensorFlow","Flask"],
+          link: "https://your-demo-link.example",
+          repo: "https://github.com/you/stock-predictor",
+          shot: "shots/stock.png"
+        },
+        {
+          id: "p2",
+          name: "Portfolio Site.html",
+          kind: "html",
+          summary: "Personal site with retro XP desktop UI.",
+          tech: ["HTML","CSS","JS"],
+          link: "https://yoursite.example",
+          repo: "https://github.com/you/portfolio",
+          shot: "shots/portfolio.png"
+        },
+        {
+          id: "p3",
+          name: "Data Cleaner.pdf",
+          kind: "pdf",
+          summary: "CLI to clean CSVs and generate reports.",
+          tech: ["Node","CLI"],
+          link: "https://your-demo-link.example",
+          repo: "https://github.com/you/data-cleaner",
+          shot: "shots/cleaner.png"
+        }
+      ];
 
       document.querySelectorAll(".ql").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -877,6 +942,120 @@
 
         focusWindow(win);
         activateQuickLaunch("explorer");
+      }
+      function iconForKind(kind){
+        if (kind === "exe")  return "file-exe.ico";
+        if (kind === "html") return "file-html.ico";
+        if (kind === "pdf")  return "file-pdf.ico";
+        return "file.ico";
+      }
+
+      function openProjectsWindow() {
+        let win = document.querySelector('.window[data-app="projects"]');
+        if (win) { if (win.classList.contains('hidden')) win.classList.remove('hidden'); focusWindow(win); return win; }
+
+        win = document.createElement('div');
+        win.className = 'window';
+        win.dataset.app = 'projects';
+        Object.assign(win.style, { left:'220px', top:'140px', width:'760px', height:'520px' });
+
+        const listHTML = PROJECTS.map(p => `
+          <div class="file-item" data-pid="${p.id}" tabindex="0">
+            <img class="ficon" src="${iconForKind(p.kind)}" alt="">
+            <div class="meta">
+              <div class="name">${p.name}</div>
+              <div class="sub">${p.tech.join(", ")}</div>
+            </div>
+          </div>
+        `).join('');
+
+        win.innerHTML = `
+          <div class="titlebar" data-drag-handle>
+            <div class="title-left">
+              <img class="mini-icon" src="folder.ico" alt="Projects">
+              <span class="title-text">Projects</span>
+            </div>
+            <div class="title-controls">
+              <button class="ctl" data-min title="Minimize">🗕</button>
+              <button class="ctl" data-max title="Maximize">▢</button>
+              <button class="ctl close" data-close title="Close">✕</button>
+            </div>
+          </div>
+          <div class="content" style="padding:0; display:flex; flex-direction:column; min-height:0;">
+            <div style="padding:6px 10px; border-bottom:1px solid #cbd5f0; background:#eef3ff;">
+              <strong>My Projects</strong> — double‑click a file to open
+            </div>
+            <div class="file-list" id="projectList">${listHTML}</div>
+         </div>
+          <div class="status">Ready</div>
+        `;
+
+        desktop.appendChild(win);
+        makeWindowDraggable(win, win.querySelector('[data-drag-handle]'));
+        win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
+        win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
+        win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
+        focusWindow(win);
+        if (typeof activateQuickLaunch === 'function') activateQuickLaunch('projects');
+
+        // selection + open behavior
+        const list = win.querySelector('#projectList');
+        let sel;
+        list.addEventListener('click', e => {
+          const item = e.target.closest('.file-item'); if (!item) return;
+          if (sel) sel.classList.remove('selected');
+          sel = item; sel.classList.add('selected');
+        });
+        list.addEventListener('dblclick', e => {
+          const item = e.target.closest('.file-item'); if (!item) return;
+          const pid = item.dataset.pid;
+          const p = PROJECTS.find(x => x.id === pid);
+          if (p) openProjectDetails(p);
+        });
+
+        return win;
+      }
+
+      function openProjectDetails(p) {
+        // one window per project
+        let win = document.querySelector(`.window[data-app="proj-${p.id}"]`);
+        if (win) { if (win.classList.contains('hidden')) win.classList.remove('hidden'); focusWindow(win); return; }
+
+        win = document.createElement('div');
+        win.className = 'window';
+        win.dataset.app = `proj-${p.id}`;
+        Object.assign(win.style, { left:'260px', top:'180px', width:'560px', height:'420px' });
+
+        win.innerHTML = `
+          <div class="titlebar" data-drag-handle>
+            <div class="title-left">
+              <img class="mini-icon" src="${iconForKind(p.kind)}" alt="">
+              <span class="title-text">${p.name.replace(/\.[a-z0-9]+$/i,'')}</span>
+            </div>
+            <div class="title-controls">
+              <button class="ctl" data-min title="Minimize">🗕</button>
+              <button class="ctl" data-max title="Maximize">▢</button>
+              <button class="ctl close" data-close title="Close">✕</button>
+            </div>
+          </div>
+          <div class="content" style="padding:12px; overflow:auto;">
+            ${p.shot ? `<img src="${p.shot}" alt="" style="max-width:100%; border:1px solid #ddd; border-radius:6px; margin-bottom:10px;">` : ''}
+            <h3 style="margin:6px 0 8px;">${p.name}</h3>
+            <p style="margin:6px 0 10px;">${p.summary}</p>
+            <p style="margin:6px 0;"><strong>Tech:</strong> ${p.tech.join(", ")}</p>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+              ${p.link ? `<a class="ctl" href="${p.link}" target="_blank" style="text-decoration:none; padding:6px 10px;">Run</a>` : ''}
+              ${p.repo ? `<a class="ctl" href="${p.repo}" target="_blank" style="text-decoration:none; padding:6px 10px;">Repo</a>` : ''}
+            </div>
+          </div>
+          <div class="status">Ready</div>
+  `     ;
+        desktop.appendChild(win);
+        makeWindowDraggable(win, win.querySelector('[data-drag-handle]'));
+        win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
+        win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
+        win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
+        focusWindow(win);
       }
 
       function focusWindow(win) {
@@ -1124,6 +1303,7 @@
         if (!icon) return;
         const app = icon.dataset.app;
         if (app === "about") openAboutWindow();
+        else if (app === 'projects') openProjectsWindow();
         else if (app === "explorer") openExplorerWindow();
         else if (app === "bin") alert("Recycle Bin is empty.");
         else alert("This app is coming soon.");
