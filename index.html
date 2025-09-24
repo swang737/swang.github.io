@@ -589,6 +589,39 @@
         margin: 0;
         max-width: 320px;
       }
+      .project-subhead {
+        margin: 10px 0 6px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .project-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .project-repo-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: 6px;
+        border: 1px solid #010409;
+        background: #24292e;
+        color: #fff;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        transition: background 160ms ease, transform 160ms ease;
+      }
+      .project-repo-btn:hover {
+        background: #1f2328;
+      }
+      .project-repo-btn:active {
+        background: #161b22;
+        transform: translateY(1px);
+      }
       .status {
         height: 24px;
         background: linear-gradient(#efefef, #e4e4e4);
@@ -919,6 +952,32 @@
           link: "https://your-demo-link.example",
           repo: "https://github.com/you/data-cleaner",
           shot: "shots/cleaner.png"
+        },
+        {
+          id: "p4",
+          name: "Monte Carlo Lab.exe",
+          kind: "exe",
+          summary: [
+            { type: "heading", text: "European Options" },
+            {
+              type: "paragraph",
+              text: "Priced using Monte Carlo methods with variance reduction. Priced using Finite Difference methods including Explicit, Implicit and Crank-Nicolson schemes. Additionally computed Gamma and Deltas using Monte Carlo as well as the implied volatilities with Newton-Raphson Method."
+            },
+            { type: "heading", text: "Exotic Barrier Options" },
+            {
+              type: "paragraph",
+              text: "Priced using Euler/Milstein method for SDE using Monte Carlo random paths. Priced using Crank-Nicolson scheme by adjusting Derichlet boundaries. Barrier options priced include down and out, up and in, down and in and up and out."
+            },
+            { type: "heading", text: "American Put" },
+            {
+              type: "paragraph",
+              text: "Priced using Euler/Milstein method for SDE and Longstaff-Schwartz method by estimating continuation value using polynomial regression."
+            }
+          ],
+          tech: ["Python", "statsmodels", "numpy", "pandas"],
+          link: "https://your-demo-link.example",
+          repo: "https://github.com/you/monte-carlo-lab",
+          shot: ""
         }
       ];
 
@@ -1206,6 +1265,26 @@
         if (kind === "html") return "file-html.ico";
         if (kind === "pdf")  return "file-pdf.ico";
         return "file.ico";
+      }
+
+      function renderSummary(summary) {
+        if (Array.isArray(summary)) {
+          return summary
+            .map((block) => {
+              if (typeof block === "string") {
+                return `<p style="margin:6px 0 10px;">${block}</p>`;
+              }
+              if (!block || typeof block !== "object") return "";
+              const text = block.text ?? "";
+              if (block.type === "heading") {
+                return `<h4 class="project-subhead">${text}</h4>`;
+              }
+              return `<p style="margin:6px 0 10px;">${text}</p>`;
+            })
+            .join("");
+        }
+        if (!summary) return "";
+        return `<p style="margin:6px 0 10px;">${summary}</p>`;
       }
 
       function openSnakeWindow() {
@@ -1571,6 +1650,10 @@
         win.dataset.app = `proj-${p.id}`;
         Object.assign(win.style, { left:'260px', top:'180px', width:'560px', height:'420px' });
 
+        const repoButton = p.repo
+          ? `<a class="project-repo-btn" href="${p.repo}" target="_blank" rel="noopener noreferrer">View on GitHub</a>`
+          : '';
+
         win.innerHTML = `
           <div class="titlebar" data-drag-handle>
             <div class="title-left">
@@ -1586,12 +1669,9 @@
           <div class="content" style="padding:12px; overflow:auto;">
             ${p.shot ? `<img src="${p.shot}" alt="" style="max-width:100%; border:1px solid #ddd; border-radius:6px; margin-bottom:10px;">` : ''}
             <h3 style="margin:6px 0 8px;">${p.name}</h3>
-            <p style="margin:6px 0 10px;">${p.summary}</p>
+            ${renderSummary(p.summary)}
             <p style="margin:6px 0;"><strong>Tech:</strong> ${p.tech.join(", ")}</p>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-              ${p.link ? `<a class="ctl" href="${p.link}" target="_blank" style="text-decoration:none; padding:6px 10px;">Run</a>` : ''}
-              ${p.repo ? `<a class="ctl" href="${p.repo}" target="_blank" style="text-decoration:none; padding:6px 10px;">Repo</a>` : ''}
-            </div>
+            ${repoButton ? `<div class="project-actions">${repoButton}</div>` : ''}
           </div>
           <div class="status">Ready</div>
   `     ;
