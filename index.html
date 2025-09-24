@@ -682,26 +682,26 @@
       <div class="boot-sub">Compiling Internships...</div>
     </div>
     <div class="desktop hidden" id="desktop">
-      <!-- Desktop icons (ordered top-to-bottom as requested: bin, Explorer/explorer, about) -->
+      <!-- Desktop icons (top-to-bottom: bin, projects, snake, explorer, about) -->
       <div class="icons" id="iconGrid" aria-label="Desktop">
         <div class="desktop-icon" tabindex="0" data-app="bin">
           <img src="bin.ico" alt="Recycle Bin" />
           <div class="icon-label">Recycle Bin</div>
         </div>
-        
+
         <div class="desktop-icon" tabindex="0" data-app="projects">
           <img src="folder.ico" alt="Projects Folder" />
           <div class="icon-label">Projects</div>
         </div>
 
-        <div class="desktop-icon" tabindex="0" data-app="explorer">
-          <img src="explorer.ico" alt="Explorer Icon" />
-          <div class="icon-label">Explorer</div>
-        </div>
-
         <div class="desktop-icon" tabindex="0" data-app="snake">
           <img src="file-exe.ico" alt="Snake Game" />
           <div class="icon-label">Snake</div>
+        </div>
+
+        <div class="desktop-icon" tabindex="0" data-app="explorer">
+          <img src="explorer.ico" alt="Explorer Icon" />
+          <div class="icon-label">Explorer</div>
         </div>
 
         <div class="desktop-icon" tabindex="0" data-app="about">
@@ -1740,7 +1740,7 @@
         ICON_H = 96,
         ICON_GAP = 8,
         ICON_MARGIN = 12;
-      const ICON_ORDER = ["bin", "projects", "explorer", "snake", "about"]; // top-to-bottom
+      const ICON_ORDER = ["bin", "projects", "snake", "explorer", "about"]; // top-to-bottom
 
       function setIconPosition(el, left, top) {
         el.style.left = left + "px";
