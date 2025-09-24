@@ -534,6 +534,61 @@
       .content p {
         margin: 0 0 10px;
       }
+      .snake-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+      }
+      .snake-canvas {
+        width: 320px;
+        height: 320px;
+        background: #041806;
+        border: 1px solid #123b7c;
+        border-radius: 4px;
+        image-rendering: pixelated;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .snake-hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #123b7c;
+      }
+      .snake-score {
+        color: #1b7b10;
+      }
+      .snake-btn {
+        padding: 6px 14px;
+        border-radius: 4px;
+        border: 1px solid #123b7c;
+        background: linear-gradient(#5f86eb, #2c64c6);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+        box-shadow: inset 0 1px 0 #8dbffd, inset 0 -1px 0 #1b3f8b;
+      }
+      .snake-btn:hover {
+        filter: brightness(1.05);
+      }
+      .snake-btn:active {
+        box-shadow: inset 0 1px 0 #1b3f8b, inset 0 -1px 0 #8dbffd;
+        transform: translateY(1px);
+      }
+      .snake-help {
+        font-size: 12px;
+        opacity: 0.75;
+        text-align: center;
+        margin: 0;
+        max-width: 320px;
+      }
       .status {
         height: 24px;
         background: linear-gradient(#efefef, #e4e4e4);
@@ -644,6 +699,11 @@
           <div class="icon-label">Explorer</div>
         </div>
 
+        <div class="desktop-icon" tabindex="0" data-app="snake">
+          <img src="file-exe.ico" alt="Snake Game" />
+          <div class="icon-label">Snake</div>
+        </div>
+
         <div class="desktop-icon" tabindex="0" data-app="about">
           <img src="My_Computer.ico" alt="About Me" />
           <div class="icon-label">About Me</div>
@@ -707,6 +767,12 @@
           <div class="ql" title="Explorer" data-app="explorer">
             <img src="explorer.ico" alt="Explorer" />
             <span class="ql-label">Explorer</span>
+          </div>
+
+          <!-- Snake Game -->
+          <div class="ql" title="Snake" data-app="snake">
+            <img src="file-exe.ico" alt="Snake" />
+            <span class="ql-label">Snake</span>
           </div>
 
           <!-- About Me -->
@@ -856,14 +922,24 @@
         }
       ];
 
+      let snakeGameInstance = null;
+
+      function openApp(app) {
+        if (app === "about") return openAboutWindow();
+        if (app === "projects") return openProjectsWindow();
+        if (app === "explorer") return openExplorerWindow();
+        if (app === "snake") return openSnakeWindow();
+        if (app === "bin") {
+          alert("Recycle Bin is empty.");
+          return null;
+        }
+        alert(`${app} app coming soon`);
+        return null;
+      }
+
       document.querySelectorAll(".ql").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const app = btn.dataset.app;
-          if (app === "about") openAboutWindow();
-          else if (app === "explorer") openExplorerWindow();
-          else if (app === "projects") openProjectsWindow()
-          else if (app === "bin") alert("Recycle Bin is empty.");
-          else alert(`${app} app coming soon`);
+          openApp(btn.dataset.app);
         });
       });
 
@@ -908,6 +984,10 @@
       function closeWindow(win) {
         if (win._taskBtn) win._taskBtn.remove();
         const app = win.dataset.app;
+        if (app === 'snake' && snakeGameInstance) {
+          snakeGameInstance.destroy();
+          snakeGameInstance = null;
+        }
         if (app) deactivateQuickLaunch(app);
         win.remove();
       }
@@ -918,13 +998,9 @@
         let win = document.querySelector(`.window[data-app="${app}"]`);
 
         if (!win) {
-          if (app === "about") win = openAboutWindow();
-          else if (app === "projects") win = openProjectsWindow();
-          else if (app === "explorer") win = openExplorerWindow();
-          else if (app === "bin") return alert("Recycle Bin is empty.");
+          win = openApp(app);
+          if (!win) return;
         }
-
-        if (!win) return; // safety
 
         if (win.classList.contains("hidden")) {
           win.classList.remove("hidden");
@@ -1132,6 +1208,293 @@
         return "file.ico";
       }
 
+      function openSnakeWindow() {
+        let win = document.querySelector('.window[data-app="snake"]');
+        if (win) {
+          if (win.classList.contains('hidden')) win.classList.remove('hidden');
+          focusWindow(win);
+          activateQuickLaunch('snake');
+          return win;
+        }
+
+        win = document.createElement('div');
+        win.className = 'window';
+        win.dataset.app = 'snake';
+        Object.assign(win.style, {
+          left: '240px',
+          top: '160px',
+          width: '420px',
+          height: '500px',
+        });
+
+        win.innerHTML = `
+        <div class="titlebar" data-drag-handle>
+          <div class="title-left">
+            <img class="mini-icon" src="file-exe.ico" alt="Snake Game">
+            <span class="title-text">Snake</span>
+          </div>
+          <div class="title-controls">
+            <button class="ctl" data-min title="Minimize" aria-label="Minimize">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M6 19h12v-2H6z"/>
+              </svg>
+            </button>
+            <button class="ctl" data-max title="Maximize" aria-label="Maximize">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M6 6h12v12H6z"/>
+              </svg>
+            </button>
+            <button class="ctl close" data-close title="Close" aria-label="Close">
+              <svg viewBox="0 0 24 24" width="12" height="12">
+                <path d="M18.3 5.71L12 12.01l-6.3-6.3L4.29 7.1l6.3 6.3l-6.3 6.3l1.41 1.41l6.3-6.29l6.3 6.3l1.41-1.41l-6.29-6.3l6.3-6.29z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="content snake-content">
+          <canvas class="snake-canvas" width="320" height="320" aria-label="Snake game board"></canvas>
+          <div class="snake-hud">
+            <span>Score: <span class="snake-score">0</span></span>
+            <button type="button" class="snake-btn snake-restart">Restart</button>
+          </div>
+          <p class="snake-help">Use arrow keys or WASD to slither. Eat the fruit, avoid the walls and your tail.</p>
+        </div>
+        <div class="status">Use arrow keys or WASD to play.</div>
+      `;
+
+        desktop.appendChild(win);
+        makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
+
+        win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
+        win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
+        win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
+
+        const canvas = win.querySelector('.snake-canvas');
+        const scoreEl = win.querySelector('.snake-score');
+        const statusEl = win.querySelector('.status');
+        const restartBtn = win.querySelector('.snake-restart');
+
+        if (snakeGameInstance) {
+          snakeGameInstance.destroy();
+        }
+        snakeGameInstance = createSnakeGame({ canvas, scoreEl, statusEl });
+
+        if (restartBtn) {
+          restartBtn.addEventListener('click', () => {
+            snakeGameInstance?.reset();
+            focusWindow(win);
+          });
+        }
+
+        focusWindow(win);
+        activateQuickLaunch('snake');
+        return win;
+      }
+
+      function createSnakeGame({ canvas, scoreEl, statusEl }) {
+        const ctx = canvas?.getContext?.('2d');
+        if (!canvas || !ctx) {
+          return {
+            reset() {},
+            destroy() {},
+          };
+        }
+
+        const gridSize = 20;
+        const boardSize = canvas.width;
+        const tile = boardSize / gridSize;
+        const speed = 110; // ms per step
+        const cellPadding = 1;
+
+        let snake = [];
+        let direction = { x: 1, y: 0 };
+        let queuedDirection = { x: 1, y: 0 };
+        let food = { x: 10, y: 10 };
+        let score = 0;
+        let running = false;
+        let frameId = null;
+        let lastTick = 0;
+
+        function setStatus(message) {
+          if (statusEl) statusEl.textContent = message;
+        }
+
+        function setScore(value) {
+          score = value;
+          if (scoreEl) scoreEl.textContent = value;
+        }
+
+        function drawBackground() {
+          ctx.fillStyle = '#021004';
+          ctx.fillRect(0, 0, boardSize, boardSize);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+          ctx.lineWidth = 1;
+          for (let i = 1; i < gridSize; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * tile, 0);
+            ctx.lineTo(i * tile, boardSize);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i * tile);
+            ctx.lineTo(boardSize, i * tile);
+            ctx.stroke();
+          }
+        }
+
+        function drawCell(x, y, color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            x * tile + cellPadding,
+            y * tile + cellPadding,
+            tile - cellPadding * 2,
+            tile - cellPadding * 2
+          );
+        }
+
+        function spawnFood() {
+          let candidate;
+          do {
+            candidate = {
+              x: Math.floor(Math.random() * gridSize),
+              y: Math.floor(Math.random() * gridSize),
+            };
+          } while (snake.some((segment) => segment.x === candidate.x && segment.y === candidate.y));
+          return candidate;
+        }
+
+        function queueDirection(next) {
+          if (next.x === -direction.x && next.y === -direction.y) return;
+          queuedDirection = next;
+        }
+
+        function advance() {
+          const head = {
+            x: snake[0].x + direction.x,
+            y: snake[0].y + direction.y,
+          };
+
+          if (
+            head.x < 0 ||
+            head.y < 0 ||
+            head.x >= gridSize ||
+            head.y >= gridSize ||
+            snake.some((segment) => segment.x === head.x && segment.y === head.y)
+          ) {
+            return false;
+          }
+
+          snake.unshift(head);
+
+          if (head.x === food.x && head.y === food.y) {
+            setScore(score + 1);
+            setStatus(`Nice! Score: ${score}`);
+            food = spawnFood();
+          } else {
+            snake.pop();
+          }
+
+          return true;
+        }
+
+        function draw() {
+          drawBackground();
+          drawCell(food.x, food.y, '#d62828');
+          snake.forEach((segment, index) => {
+            drawCell(segment.x, segment.y, index === 0 ? '#8dff5a' : '#35c84a');
+          });
+        }
+
+        function tick(time) {
+          if (!running) return;
+          if (!lastTick) lastTick = time;
+
+          if (time - lastTick >= speed) {
+            direction = queuedDirection;
+            if (!advance()) {
+              running = false;
+              setStatus(`Game over! Final score: ${score}. Press Restart to play again.`);
+              draw();
+              frameId = null;
+              return;
+            }
+            lastTick = time;
+          }
+
+          draw();
+          frameId = requestAnimationFrame(tick);
+        }
+
+        function reset() {
+          snake = [
+            { x: 8, y: 10 },
+            { x: 7, y: 10 },
+            { x: 6, y: 10 },
+          ];
+          direction = { x: 1, y: 0 };
+          queuedDirection = { x: 1, y: 0 };
+          food = spawnFood();
+          setScore(0);
+          setStatus('Use arrow keys or WASD to play.');
+          running = true;
+          lastTick = 0;
+          draw();
+          if (frameId) cancelAnimationFrame(frameId);
+          frameId = requestAnimationFrame(tick);
+        }
+
+        const handleKeyDown = (event) => {
+          let next;
+          switch (event.key) {
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+              next = { x: 0, y: -1 };
+              break;
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+              next = { x: 0, y: 1 };
+              break;
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+              next = { x: -1, y: 0 };
+              break;
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+              next = { x: 1, y: 0 };
+              break;
+            case ' ':
+              if (!running) {
+                event.preventDefault();
+                reset();
+              }
+              return;
+            default:
+              return;
+          }
+
+          if (next) {
+            event.preventDefault();
+            queueDirection(next);
+          }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        reset();
+
+        return {
+          reset,
+          destroy() {
+            running = false;
+            if (frameId) cancelAnimationFrame(frameId);
+            frameId = null;
+            window.removeEventListener('keydown', handleKeyDown);
+          },
+        };
+      }
+
       function openProjectsWindow() {
         let win = document.querySelector('.window[data-app="projects"]');
         if (win) { if (win.classList.contains('hidden')) win.classList.remove('hidden'); focusWindow(win); return win; }
@@ -1279,6 +1642,10 @@
         if (win._taskBtn) win._taskBtn.remove();
         const app = win.dataset.app;
         if (app) {
+          if (app === 'snake' && snakeGameInstance) {
+            snakeGameInstance.destroy();
+            snakeGameInstance = null;
+          }
           const el = document.querySelector(
             `#quickLaunch .ql[data-app="${app}"]`
           );
@@ -1373,7 +1740,7 @@
         ICON_H = 96,
         ICON_GAP = 8,
         ICON_MARGIN = 12;
-      const ICON_ORDER = ["bin", "explorer", "about", "projects"]; // top-to-bottom
+      const ICON_ORDER = ["bin", "projects", "explorer", "snake", "about"]; // top-to-bottom
 
       function setIconPosition(el, left, top) {
         el.style.left = left + "px";
@@ -1466,12 +1833,7 @@
       iconGrid.addEventListener("dblclick", (e) => {
         const icon = e.target.closest(".desktop-icon");
         if (!icon) return;
-        const app = icon.dataset.app;
-        if (app === "about") openAboutWindow();
-        else if (app === 'projects') openProjectsWindow();
-        else if (app === "explorer") openExplorerWindow();
-        else if (app === "bin") alert("Recycle Bin is empty.");
-        else alert("This app is coming soon.");
+        openApp(icon.dataset.app);
       });
 
       // Keyboard open (Enter/Space)
@@ -1480,8 +1842,7 @@
           (e.key === "Enter" || e.key === " ") &&
           document.activeElement?.classList.contains("desktop-icon")
         ) {
-          const app = document.activeElement.dataset.app;
-          if (app === "about") openAboutWindow();
+          openApp(document.activeElement.dataset.app);
         }
         if (e.key === "Escape") {
           const top = [...document.querySelectorAll(".window")].sort(
