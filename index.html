@@ -849,6 +849,47 @@
         gap: 14px;
         margin-bottom: 12px;
       }
+      .wmp-progress {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 12px 2px;
+        color: #1f2f56;
+        font-size: 11px;
+      }
+      .wmp-progress.is-disabled {
+        opacity: 0.45;
+      }
+      .wmp-time {
+        width: 42px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+      }
+      .wmp-progress-rail {
+        position: relative;
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #d8dff0 0%, #b8c3dd 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+      }
+      .wmp-progress-fill {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        background: linear-gradient(180deg, #5f8ef0 0%, #3464c5 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        transition: width 80ms linear;
+      }
+      .wmp-progress.is-disabled .wmp-progress-rail {
+        background: linear-gradient(180deg, #e5e9f4 0%, #cfd7ea 100%);
+      }
+      .wmp-progress.is-disabled .wmp-progress-fill {
+        background: linear-gradient(180deg, #b2c0e1 0%, #7f94c3 100%);
+      }
       .wmp-btn {
         width: 52px;
         height: 52px;
@@ -1050,7 +1091,7 @@
       <div class="boot-footer">© Microsoft Corporation</div>
     </div>
     <div class="desktop hidden" id="desktop">
-      <!-- Desktop icons (top-to-bottom: bin, explorer, about, projects, extracurriculars, tetris, snake) -->
+      <!-- Desktop icons (top-to-bottom: bin, explorer, about, projects, volunteering, tetris, snake) -->
       <div class="icons" id="iconGrid" aria-label="Desktop">
         <div class="desktop-icon" tabindex="0" data-app="bin">
           <img src="bin.ico" alt="Recycle Bin" />
@@ -1072,9 +1113,9 @@
           <div class="icon-label">Projects</div>
         </div>
 
-        <div class="desktop-icon" tabindex="0" data-app="extracurriculars">
-          <img src="extracurriculars.ico" alt="Extracurriculars" />
-          <div class="icon-label">Extracurriculars</div>
+        <div class="desktop-icon" tabindex="0" data-app="volunteering">
+          <img src="extracurriculars.ico" alt="Volunteering" />
+          <div class="icon-label">Volunteering</div>
         </div>
 
         <div class="desktop-icon" tabindex="0" data-app="tetris">
@@ -1159,10 +1200,10 @@
             <span class="ql-label">Tetris</span>
           </div>
 
-          <!-- Extracurriculars -->
-          <div class="ql" title="Extracurriculars" data-app="extracurriculars">
-            <img src="extracurriculars.ico" alt="Extracurriculars" />
-            <span class="ql-label">Extracurriculars</span>
+          <!-- Volunteering -->
+          <div class="ql" title="Volunteering" data-app="volunteering">
+            <img src="extracurriculars.ico" alt="Volunteering" />
+            <span class="ql-label">Volunteering</span>
           </div>
 
           <!-- About Me -->
@@ -1261,7 +1302,7 @@
       const taskItems = document.getElementById("taskItems");
       const tpl = document.getElementById("windowTemplate");
       const clock = document.getElementById("clock");
-      const extracurricularsPlaylist = [
+      const volunteeringPlaylist = [
         {
           id: 'coda',
           title: 'Combined Dentistry Association – President',
@@ -1272,6 +1313,7 @@
             src: 'coda.png',
             alt: 'Combined Dentistry Association Logo',
           },
+          audio: 'glimpseofus.mp3',
         },
         {
           id: 'sqt-subcom',
@@ -1283,6 +1325,7 @@
             src: 'sqt.jpeg',
             alt: 'SQT Logo',
           },
+          audio: 'powerispower.mp3',
         },
         {
           id: 'sudata-subcom',
@@ -1294,6 +1337,7 @@
             src: 'sudata.png',
             alt: 'SUDATA Logo',
           },
+          audio: 'timeless.mp3',
         },
       ];
       const Z = {
@@ -1410,6 +1454,8 @@
 
       let snakeGameInstance = null;
       let tetrisGameInstance = null;
+      let volunteeringAudioInstance = null;
+      let volunteeringAudioTrackId = null;
       const bootAudioEl = document.getElementById("bootAudio");
       let bootAudioPlayed = false;
       let bootAudioArmed = false;
@@ -1465,7 +1511,7 @@
         if (app === "explorer") return openExplorerWindow();
         if (app === "snake") return openSnakeWindow();
         if (app === "tetris") return openTetrisWindow();
-        if (app === "extracurriculars") return openExtracurricularsWindow();
+        if (app === "volunteering") return openVolunteeringWindow();
         if (app === "bin") {
           alert("Recycle Bin is empty.");
           return null;
@@ -1822,7 +1868,10 @@
         desktop.appendChild(win);
         makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
 
-        win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
+        win.querySelector('[data-close]').addEventListener('click', () => {
+          volunteeringAudioInstance?.pause();
+          closeWindow(win);
+        });
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
 
@@ -1848,18 +1897,18 @@
         return win;
       }
 
-      function openExtracurricularsWindow() {
-        let win = document.querySelector('.window[data-app="extracurriculars"]');
+      function openVolunteeringWindow() {
+        let win = document.querySelector('.window[data-app="volunteering"]');
         if (win) {
           if (win.classList.contains('hidden')) win.classList.remove('hidden');
           focusWindow(win);
-          activateQuickLaunch('extracurriculars');
+          activateQuickLaunch('volunteering');
           return win;
         }
 
         win = document.createElement('div');
         win.className = 'window';
-        win.dataset.app = 'extracurriculars';
+        win.dataset.app = 'volunteering';
         Object.assign(win.style, {
           left: '240px',
           top: '150px',
@@ -1867,7 +1916,7 @@
           height: '480px',
         });
 
-        const playlistMarkup = extracurricularsPlaylist
+        const playlistMarkup = volunteeringPlaylist
           .map((item, index) => {
             const selected = index === 0;
             const aria = selected ? ' aria-selected="true"' : '';
@@ -1883,8 +1932,8 @@
         win.innerHTML = `
         <div class="titlebar" data-drag-handle>
           <div class="title-left">
-            <img class="mini-icon" src="extracurriculars.ico" alt="Extracurricular Mix">
-            <span class="title-text">Extracurricular Mix</span>
+            <img class="mini-icon" src="extracurriculars.ico" alt="Volunteering Mix">
+            <span class="title-text">Volunteering Mix</span>
           </div>
           <div class="title-controls">
             <button class="ctl" data-min title="Minimize" aria-label="Minimize">
@@ -1919,9 +1968,9 @@
                       <path d="M13 7l-6 5l6 5V7zm6 0h-2v10h2V7z" />
                     </svg>
                   </button>
-                  <button type="button" class="wmp-btn wmp-btn-play" data-action="toggle" aria-label="Pause experience">
+                  <button type="button" class="wmp-btn wmp-btn-play" data-action="toggle" aria-label="Play experience">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M8 7h3v10H8zm5 0h3v10h-3z" />
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </button>
                   <button type="button" class="wmp-btn" data-action="next" aria-label="Next experience">
@@ -1929,6 +1978,13 @@
                       <path d="M11 7l6 5l-6 5V7zm-6 0h2v10H5V7z" />
                     </svg>
                   </button>
+                </div>
+                <div class="wmp-progress is-disabled" role="group" aria-label="Playback progress" aria-disabled="true">
+                  <span class="wmp-time wmp-time-current">0:00</span>
+                  <div class="wmp-progress-rail" role="progressbar" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0:00 of 0:00">
+                    <div class="wmp-progress-fill"></div>
+                  </div>
+                  <span class="wmp-time wmp-time-total">0:00</span>
                 </div>
                 <div class="wmp-now-title">Select an activity</div>
                 <div class="wmp-now-meta"></div>
@@ -1943,7 +1999,10 @@
         desktop.appendChild(win);
         makeDraggable(win, win.querySelector('[data-drag-handle]') || win.querySelector('.titlebar'));
 
-        win.querySelector('[data-close]').addEventListener('click', () => closeWindow(win));
+        win.querySelector('[data-close]').addEventListener('click', () => {
+          volunteeringAudioInstance?.pause();
+          closeWindow(win);
+        });
         win.querySelector('[data-min]').addEventListener('click', () => minimizeWindow(win));
         win.querySelector('[data-max]').addEventListener('click', () => toggleMaximize(win));
 
@@ -1955,19 +2014,131 @@
         const playBtn = win.querySelector('.wmp-btn[data-action="toggle"]');
         const prevBtn = win.querySelector('.wmp-btn[data-action="prev"]');
         const nextBtn = win.querySelector('.wmp-btn[data-action="next"]');
+        const progressContainer = win.querySelector('.wmp-progress');
+        const progressBar = win.querySelector('.wmp-progress-rail');
+        const progressFill = win.querySelector('.wmp-progress-fill');
+        const currentTimeEl = win.querySelector('.wmp-time-current');
+        const totalTimeEl = win.querySelector('.wmp-time-total');
 
         if (!playlistEl || !displayEl || !titleEl || !metaEl || !blurbEl) {
           focusWindow(win);
-          activateQuickLaunch('extracurriculars');
+          activateQuickLaunch('volunteering');
           return win;
         }
 
-        const idToIndex = new Map(extracurricularsPlaylist.map((item, index) => [item.id, index]));
+        const idToIndex = new Map(volunteeringPlaylist.map((item, index) => [item.id, index]));
         let currentIndex = 0;
-        let isPlaying = true;
+        let isPlaying = false;
+
+        if (!volunteeringAudioInstance) {
+          volunteeringAudioInstance = new Audio();
+          volunteeringAudioInstance.preload = 'auto';
+        }
+        const audio = volunteeringAudioInstance;
 
         const playIconSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
         const pauseIconSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h3v10H8zm5 0h3v10h-3z"/></svg>';
+        const EMPTY_TIME = '0:00';
+
+        if (Array.isArray(audio.__volunteeringHandlers)) {
+          audio.__volunteeringHandlers.forEach(({ type, handler }) => {
+            audio.removeEventListener(type, handler);
+          });
+        }
+
+        function formatTime(value) {
+          if (!Number.isFinite(value) || value < 0) value = 0;
+          const minutes = Math.floor(value / 60);
+          const seconds = Math.floor(value % 60);
+          return `${minutes}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function resetProgress() {
+          if (progressFill) progressFill.style.width = '0%';
+          if (progressBar) {
+            progressBar.setAttribute('aria-valuenow', '0');
+            progressBar.setAttribute('aria-valuetext', `${EMPTY_TIME} of ${EMPTY_TIME}`);
+          }
+          if (currentTimeEl) currentTimeEl.textContent = EMPTY_TIME;
+          if (totalTimeEl) totalTimeEl.textContent = EMPTY_TIME;
+        }
+
+        function setProgressAvailability(available) {
+          if (progressContainer) {
+            progressContainer.classList.toggle('is-disabled', !available);
+            progressContainer.setAttribute('aria-disabled', available ? 'false' : 'true');
+          }
+          if (progressBar) {
+            if (available) {
+              progressBar.setAttribute('aria-valuenow', progressBar.getAttribute('aria-valuenow') || '0');
+              progressBar.setAttribute('aria-valuetext', `${EMPTY_TIME} of ${EMPTY_TIME}`);
+            } else {
+              progressBar.setAttribute('aria-valuenow', '0');
+              progressBar.setAttribute('aria-valuetext', 'No audio available');
+            }
+          }
+        }
+
+        function syncProgress() {
+          if (!progressFill || !progressBar || !currentTimeEl) return;
+          if (!volunteeringAudioTrackId || win.dataset.track !== volunteeringAudioTrackId) return;
+          const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+          const current = Number.isFinite(audio.currentTime) && audio.currentTime > 0 ? audio.currentTime : 0;
+          const percent = duration > 0 ? Math.min(Math.max(current / duration, 0), 1) * 100 : 0;
+          progressFill.style.width = `${percent}%`;
+          progressBar.setAttribute('aria-valuenow', String(Math.round(percent)));
+          const durationText = formatTime(duration);
+          const currentText = formatTime(current);
+          progressBar.setAttribute('aria-valuetext', `${currentText} of ${durationText}`);
+          currentTimeEl.textContent = currentText;
+          if (totalTimeEl) totalTimeEl.textContent = durationText;
+        }
+
+        const handleTimeUpdate = () => {
+          syncProgress();
+        };
+
+        const handleDurationChange = () => {
+          if (!volunteeringAudioTrackId || win.dataset.track !== volunteeringAudioTrackId) return;
+          syncProgress();
+        };
+
+        const handlePlay = () => {
+          if (!volunteeringAudioTrackId || win.dataset.track !== volunteeringAudioTrackId) return;
+          isPlaying = true;
+          updatePlayButton();
+          updateMeta();
+          updatePlaybackOverlay();
+        };
+
+        const handlePause = () => {
+          if (!volunteeringAudioTrackId || win.dataset.track !== volunteeringAudioTrackId) return;
+          if (audio.ended) return;
+          isPlaying = false;
+          updatePlayButton();
+          updateMeta();
+          updatePlaybackOverlay();
+          syncProgress();
+        };
+
+        const handleEnded = () => {
+          if (!volunteeringAudioTrackId || win.dataset.track !== volunteeringAudioTrackId) return;
+          isPlaying = false;
+          updatePlayButton();
+          updateMeta();
+          updatePlaybackOverlay();
+          syncProgress();
+        };
+
+        const boundHandlers = [
+          { type: 'timeupdate', handler: handleTimeUpdate },
+          { type: 'durationchange', handler: handleDurationChange },
+          { type: 'ended', handler: handleEnded },
+          { type: 'play', handler: handlePlay },
+          { type: 'pause', handler: handlePause },
+        ];
+        boundHandlers.forEach(({ type, handler }) => audio.addEventListener(type, handler));
+        audio.__volunteeringHandlers = boundHandlers;
 
         function updatePlayButton() {
           if (!playBtn) return;
@@ -1976,7 +2147,7 @@
         }
 
         function currentTrack() {
-          return extracurricularsPlaylist[currentIndex] ?? null;
+          return volunteeringPlaylist[currentIndex] ?? null;
         }
 
         function updateMeta() {
@@ -1995,18 +2166,25 @@
         }
 
         function renderTrack(id, { forcePlay = false } = {}) {
-          if (!extracurricularsPlaylist.length) {
-            displayEl.innerHTML = '<p style="color:#d7e4ff; font-size:14px;">No extracurriculars added yet.</p>';
+          if (!volunteeringPlaylist.length) {
+            displayEl.innerHTML = '<p style="color:#1b2b54; font-size:14px;">No volunteering activities added yet.</p>';
             titleEl.textContent = 'Coming soon';
             metaEl.textContent = '';
             blurbEl.textContent = '';
             return;
           }
 
-          const track = extracurricularsPlaylist[idToIndex.get(id) ?? currentIndex] ?? extracurricularsPlaylist[0];
+          const track = volunteeringPlaylist[idToIndex.get(id) ?? currentIndex] ?? volunteeringPlaylist[0];
           const idx = idToIndex.get(track.id);
           if (typeof idx === 'number') currentIndex = idx;
           if (forcePlay) isPlaying = true;
+
+          resetProgress();
+          const hasAudio = Boolean(track.audio);
+          setProgressAvailability(hasAudio);
+          if (!hasAudio) {
+            isPlaying = false;
+          }
 
           playlistEl.querySelectorAll('.wmp-track').forEach((trackEl) => {
             const active = trackEl.dataset.track === track.id;
@@ -2038,17 +2216,56 @@
 
           titleEl.textContent = track.title;
           blurbEl.textContent = track.blurb || '';
+
+          if (track.audio) {
+            const resolved = new URL(track.audio, window.location.href).href;
+            const needsSrc = volunteeringAudioTrackId !== track.id || audio.src !== resolved;
+            if (needsSrc) {
+              audio.src = resolved;
+              volunteeringAudioTrackId = track.id;
+            }
+            if (forcePlay || needsSrc) {
+              try {
+                audio.currentTime = 0;
+              } catch (err) {
+                /* ignore seek errors */
+              }
+            }
+            if (isPlaying) {
+              audio.play().catch(() => {
+                isPlaying = false;
+                updatePlayButton();
+                updateMeta();
+                updatePlaybackOverlay();
+                syncProgress();
+              });
+            } else {
+              audio.pause();
+              syncProgress();
+            }
+          } else {
+            const hadTrack = Boolean(volunteeringAudioTrackId);
+            volunteeringAudioTrackId = null;
+            audio.pause();
+            if (hadTrack) {
+              audio.removeAttribute('src');
+            }
+            resetProgress();
+            setProgressAvailability(false);
+          }
+
+          win.dataset.track = track.id;
           updateMeta();
           updatePlayButton();
           updatePlaybackOverlay();
-          win.dataset.track = track.id;
+          syncProgress();
         }
 
         function playRelative(offset) {
-          if (!extracurricularsPlaylist.length) return;
-          const total = extracurricularsPlaylist.length;
+          if (!volunteeringPlaylist.length) return;
+          const total = volunteeringPlaylist.length;
           currentIndex = (currentIndex + offset + total) % total;
-          renderTrack(extracurricularsPlaylist[currentIndex].id, { forcePlay: isPlaying });
+          renderTrack(volunteeringPlaylist[currentIndex].id, { forcePlay: isPlaying });
         }
 
         playlistEl.addEventListener('click', (event) => {
@@ -2091,12 +2308,24 @@
           updatePlayButton();
           updateMeta();
           updatePlaybackOverlay();
+          if (isPlaying) {
+            audio.play().catch(() => {
+              isPlaying = false;
+              updatePlayButton();
+              updateMeta();
+              updatePlaybackOverlay();
+              syncProgress();
+            });
+          } else {
+            audio.pause();
+            syncProgress();
+          }
         });
 
-        renderTrack(extracurricularsPlaylist[0]?.id, { forcePlay: true });
+        renderTrack(volunteeringPlaylist[0]?.id);
 
         focusWindow(win);
-        activateQuickLaunch('extracurriculars');
+        activateQuickLaunch('volunteering');
         return win;
       }
 
@@ -3130,7 +3359,7 @@
         ICON_H = 96,
         ICON_GAP = 8,
         ICON_MARGIN = 12;
-      const ICON_ORDER = ["bin", "explorer", "about", "projects", "extracurriculars", "tetris", "snake"]; // top-to-bottom
+      const ICON_ORDER = ["bin", "explorer", "about", "projects", "volunteering", "tetris", "snake"]; // top-to-bottom
       const ICON_LAYOUT_VERSION = "20241007"; // unused when persistence disabled
 
       function setIconPosition(el, left, top) {
